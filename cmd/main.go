@@ -2,21 +2,15 @@ package main
 
 import (
 	"github.com/junyaU/mimi/pkginfo"
+	"log"
 )
 
 func main() {
-	//config := packages.Config{
-	//	Mode:  packages.NeedDeps | packages.NeedImports,
-	//	Tests: false,
-	//}
+	infos, err := pkginfo.New("./")
+	if err != nil {
+		panic(err)
+	}
 
-	pkginfo.New("../Yur")
-
-	//pkgs, err := packages.Load(&config, "../Yur/main.go")
-	//if err != nil {
-	//	log.Println(err)
-	//	panic(err)
-	//}
-
-	//log.Println(pkgs[0].ExportFile)
+	log.Println("$$$$$$$")
+	log.Println(infos)
 }

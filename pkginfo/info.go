@@ -1,26 +1,28 @@
 package pkginfo
 
 import (
+	"golang.org/x/tools/go/packages"
 	"io/fs"
-	"log"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 type Info struct {
+	Name    string
+	Imports []string
 }
 
-func New(root string) *Info {
-	files, err := getFilePaths(root)
+func New(root string) ([]Info, error) {
+	packagePaths, err := getPackages(root)
 	if err != nil {
-		log.Println(err)
-		return nil
+		return nil, err
 	}
 
-	return &Info{}
+	return loadPackages(packagePaths)
 }
 
-func getFilePaths(root string) (files []string, err error) {
+func getPackages(root string) (pkgs []string, err error) {
 	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -30,9 +32,63 @@ func getFilePaths(root string) (files []string, err error) {
 			return nil
 		}
 
-		files = append(files, path)
+		packageName := filepath.Dir(path)
+		packagePattern := "./" + filepath.ToSlash(packageName)
+		if pkgs == nil {
+			pkgs = append(pkgs, packagePattern)
+			return nil
+		}
+
+		if packagePattern != pkgs[len(pkgs)-1] {
+			pkgs = append(pkgs, packagePattern)
+		}
+
 		return nil
 	})
 
 	return
+}
+
+func loadPackages(pkgPaths []string) ([]Info, error) {
+	config := packages.Config{
+		Mode:  packages.NeedDeps | packages.NeedImports | packages.NeedName | packages.NeedExportFile,
+		Tests: false,
+	}
+
+	pkgs, err := packages.Load(&config, pkgPaths...)
+	if err != nil {
+		return nil, err
+	}
+
+	moduleName, err := getModuleName()
+	if err != nil {
+		return nil, err
+	}
+
+	var infos []Info
+
+	for _, pkg := range pkgs {
+		var imports []string
+		for k, _ := range pkg.Imports {
+			if strings.Contains(k, moduleName) {
+				imports = append(imports, k)
+			}
+		}
+
+		infos = append(infos, Info{
+			Name:    pkg.ID,
+			Imports: imports,
+		})
+	}
+
+	return infos, nil
+}
+
+func getModuleName() (string, error) {
+	cmd := exec.Command("go", "list", "-m")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(output)), nil
 }
