@@ -1,16 +1,15 @@
 package main
 
 import (
+	"github.com/junyaU/mimi/depgraph"
 	"github.com/junyaU/mimi/pkginfo"
-	"log"
 )
 
 func main() {
-	infos, err := pkginfo.New("./")
+	info, err := pkginfo.New("./testdata")
 	if err != nil {
 		panic(err)
 	}
 
-	log.Println("$$$$$$$")
-	log.Println(infos)
+	depgraph.New(info)
 }
