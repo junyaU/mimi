@@ -10,9 +10,10 @@ import (
 )
 
 func main() {
-	command, err := inputparser.ParseCommand(os.Args[1:]...)
+	command, err := inputparser.NewCommand(os.Args[1:]...)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
 	}
 
 	info, err := pkginfo.New(command.Path)
@@ -28,9 +29,14 @@ func main() {
 		graphDrawer.Draw(graph.Print())
 	}
 
+	drawer := output.NewLogDrawer(graph.GetNodes())
+
 	if command.IsVerbose {
-		drawer := output.NewLogDrawer()
-		drawer.Draw(graph.GetNodes())
+		drawer.Draw()
+	}
+
+	if command.MaxDirectDeps > 0 && drawer.ReportExceededDeps(command.MaxDirectDeps, command.MaxIndirectDeps) {
+		os.Exit(1)
 	}
 
 	os.Exit(0)

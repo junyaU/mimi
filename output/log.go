@@ -6,23 +6,25 @@ import (
 )
 
 type LogDrawer struct {
-	pkg  *color.Color
-	head *color.Color
-	base *color.Color
-	fail *color.Color
+	nodes []depgraph.Node
+	pkg   *color.Color
+	head  *color.Color
+	base  *color.Color
+	fail  *color.Color
 }
 
-func NewLogDrawer() *LogDrawer {
+func NewLogDrawer(nodes []depgraph.Node) *LogDrawer {
 	return &LogDrawer{
-		pkg:  color.New(color.FgGreen).Add(color.Bold),
-		head: color.New(color.FgCyan).Add(color.Bold),
-		base: color.New(color.FgWhite).Add(color.Bold),
-		fail: color.New(color.FgRed),
+		nodes: nodes,
+		pkg:   color.New(color.FgGreen).Add(color.Bold),
+		head:  color.New(color.FgCyan).Add(color.Bold),
+		base:  color.New(color.FgWhite).Add(color.Bold),
+		fail:  color.New(color.FgRed),
 	}
 }
 
-func (l *LogDrawer) Draw(nodes []depgraph.Node) {
-	for _, node := range nodes {
+func (l *LogDrawer) Draw() {
+	for _, node := range l.nodes {
 		l.pkg.Println(node.Package)
 
 		l.head.Println("  Direct Deps:")
@@ -43,4 +45,21 @@ func (l *LogDrawer) Draw(nodes []depgraph.Node) {
 			}
 		}
 	}
+}
+
+func (l *LogDrawer) ReportExceededDeps(maxDirectDeps int, maxIndirectDeps int) bool {
+	exceeded := false
+
+	for _, node := range l.nodes {
+		if len(node.To) > maxDirectDeps {
+			l.fail.Printf("Package %s has %d direct dependencies\n", node.Package, len(node.To))
+			exceeded = true
+		}
+		if len(node.Indirect) > maxIndirectDeps {
+			l.fail.Printf("Package %s has %d indirect dependencies\n", node.Package, len(node.Indirect))
+			exceeded = true
+		}
+	}
+
+	return exceeded
 }
