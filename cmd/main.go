@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/junyaU/mimi/depgraph"
+	"github.com/junyaU/mimi/output"
 	"github.com/junyaU/mimi/pkginfo"
-	"log"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 		panic(err)
 	}
 
-	aaa := depgraph.New(info)
-
-	log.Println(aaa)
+	graph := depgraph.New(info)
+	drawer := output.NewGraphDrawer()
+	drawer.Draw(graph.Print())
 }

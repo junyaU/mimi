@@ -3,6 +3,7 @@ package depgraph
 import (
 	"github.com/junyaU/mimi/pkginfo"
 	"github.com/junyaU/mimi/utils"
+	"strconv"
 )
 
 type Node struct {
@@ -13,18 +14,32 @@ type Node struct {
 }
 
 type Graph struct {
-	Nodes []Node
+	nodes []Node
 }
 
-func New(info []pkginfo.Info) (graph *Graph) {
+func New(info []pkginfo.Info) *Graph {
+	graph := &Graph{}
 	analyzeDirectDeps(graph, info)
 	analyzeIndirectDeps(graph)
-	return
+	return graph
+}
+
+func (g *Graph) Print() [][]string {
+	var table [][]string
+	for _, node := range g.nodes {
+		table = append(table, []string{
+			node.Package,
+			strconv.Itoa(len(node.To)),
+			strconv.Itoa(len(node.Indirect)),
+			strconv.Itoa(len(node.From)),
+		})
+	}
+	return table
 }
 
 func analyzeDirectDeps(graph *Graph, info []pkginfo.Info) {
 	for _, i := range info {
-		graph.Nodes = append(graph.Nodes, Node{
+		graph.nodes = append(graph.nodes, Node{
 			Package: i.Name,
 			To:      i.Imports,
 		})
@@ -32,9 +47,9 @@ func analyzeDirectDeps(graph *Graph, info []pkginfo.Info) {
 
 	for _, pkgInfo := range info {
 		for _, importedPkg := range pkgInfo.Imports {
-			for index := range graph.Nodes {
-				if importedPkg == graph.Nodes[index].Package {
-					graph.Nodes[index].From = append(graph.Nodes[index].From, pkgInfo.Name)
+			for index := range graph.nodes {
+				if importedPkg == graph.nodes[index].Package {
+					graph.nodes[index].From = append(graph.nodes[index].From, pkgInfo.Name)
 				}
 			}
 		}
@@ -42,25 +57,25 @@ func analyzeDirectDeps(graph *Graph, info []pkginfo.Info) {
 }
 
 func analyzeIndirectDeps(graph *Graph) {
-	for index := range graph.Nodes {
+	for index := range graph.nodes {
 		targetIndirect := make(map[string]bool)
-		findIndirectDeps(&graph.Nodes[index], &graph.Nodes[index], graph, targetIndirect)
+		findIndirectDeps(&graph.nodes[index], &graph.nodes[index], graph, targetIndirect)
 
 		for pkg := range targetIndirect {
-			graph.Nodes[index].Indirect = append(graph.Nodes[index].Indirect, pkg)
+			graph.nodes[index].Indirect = append(graph.nodes[index].Indirect, pkg)
 		}
 	}
 }
 
 func findIndirectDeps(target *Node, node *Node, graph *Graph, targetIndirect map[string]bool) {
 	for _, importedPkg := range node.To {
-		for index := range graph.Nodes {
-			if importedPkg == graph.Nodes[index].Package && target.Package != graph.Nodes[index].Package {
-				if !targetIndirect[graph.Nodes[index].Package] && !utils.Contains(target.To, graph.Nodes[index].Package) {
-					targetIndirect[graph.Nodes[index].Package] = true
+		for index := range graph.nodes {
+			if importedPkg == graph.nodes[index].Package && target.Package != graph.nodes[index].Package {
+				if !targetIndirect[graph.nodes[index].Package] && !utils.Contains(target.To, graph.nodes[index].Package) {
+					targetIndirect[graph.nodes[index].Package] = true
 				}
 
-				findIndirectDeps(target, &graph.Nodes[index], graph, targetIndirect)
+				findIndirectDeps(target, &graph.nodes[index], graph, targetIndirect)
 			}
 		}
 	}
