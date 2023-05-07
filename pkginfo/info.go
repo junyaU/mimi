@@ -1,9 +1,9 @@
 package pkginfo
 
 import (
+	"github.com/junyaU/mimi/utils"
 	"golang.org/x/tools/go/packages"
 	"io/fs"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -60,7 +60,7 @@ func loadPackages(pkgPaths []string) ([]Info, error) {
 		return nil, err
 	}
 
-	moduleName, err := getModuleName()
+	moduleName, err := utils.GetModuleName()
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +82,4 @@ func loadPackages(pkgPaths []string) ([]Info, error) {
 	}
 
 	return infos, nil
-}
-
-func getModuleName() (string, error) {
-	cmd := exec.Command("go", "list", "-m")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(output)), nil
 }

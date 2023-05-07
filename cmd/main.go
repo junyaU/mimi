@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/junyaU/mimi/depgraph"
 	"github.com/junyaU/mimi/pkginfo"
+	"log"
 )
 
 func main() {
@@ -11,5 +12,7 @@ func main() {
 		panic(err)
 	}
 
-	depgraph.New(info)
+	aaa := depgraph.New(info)
+
+	log.Println(aaa)
 }
