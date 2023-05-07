@@ -24,6 +24,10 @@ func New(info []pkginfo.Info) *Graph {
 	return graph
 }
 
+func (g *Graph) GetNodes() []Node {
+	return g.nodes
+}
+
 func (g *Graph) Print() [][]string {
 	var table [][]string
 	for _, node := range g.nodes {

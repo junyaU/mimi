@@ -13,6 +13,10 @@ func main() {
 	}
 
 	graph := depgraph.New(info)
-	drawer := output.NewGraphDrawer()
-	drawer.Draw(graph.Print())
+
+	graphDrawer := output.NewGraphDrawer()
+	graphDrawer.Draw(graph.Print())
+
+	drawer := output.NewLogDrawer()
+	drawer.Draw(graph.GetNodes())
 }
