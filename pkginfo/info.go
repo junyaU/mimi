@@ -1,6 +1,7 @@
 package pkginfo
 
 import (
+	"errors"
 	"github.com/junyaU/mimi/utils"
 	"golang.org/x/tools/go/packages"
 	"io/fs"
@@ -50,6 +51,10 @@ func getPackages(root string) (pkgs []string, err error) {
 }
 
 func loadPackages(pkgPaths []string) ([]Info, error) {
+	if len(pkgPaths) == 0 {
+		return nil, errors.New("no packages")
+	}
+
 	config := packages.Config{
 		Mode:  packages.NeedDeps | packages.NeedImports | packages.NeedName,
 		Tests: false,
