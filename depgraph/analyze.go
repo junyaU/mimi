@@ -28,17 +28,17 @@ func (g *Graph) GetNodes() []Node {
 	return g.nodes
 }
 
-func (g *Graph) Print() [][]string {
-	var table [][]string
+func (g *Graph) PrintRows() [][]string {
+	var rows [][]string
 	for _, node := range g.nodes {
-		table = append(table, []string{
+		rows = append(rows, []string{
 			node.Package,
 			strconv.Itoa(len(node.To)),
 			strconv.Itoa(len(node.Indirect)),
 			strconv.Itoa(len(node.From)),
 		})
 	}
-	return table
+	return rows
 }
 
 func analyzeDirectDeps(graph *Graph, info []pkginfo.Info) {

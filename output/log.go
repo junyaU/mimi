@@ -25,7 +25,7 @@ func NewLogDrawer(nodes []depgraph.Node) *LogDrawer {
 
 func (l *LogDrawer) Draw() {
 	for _, node := range l.nodes {
-		l.pkg.Println(node.Package)
+		l.pkg.Printf("%s\n", node.Package)
 
 		l.head.Println("  Direct Deps:")
 		if len(node.To) == 0 {
@@ -51,11 +51,11 @@ func (l *LogDrawer) ReportExceededDeps(maxDirectDeps int, maxIndirectDeps int) b
 	exceeded := false
 
 	for _, node := range l.nodes {
-		if len(node.To) > maxDirectDeps {
+		if maxDirectDeps > 0 && len(node.To) > maxDirectDeps {
 			l.fail.Printf("Package %s has %d direct dependencies\n", node.Package, len(node.To))
 			exceeded = true
 		}
-		if len(node.Indirect) > maxIndirectDeps {
+		if maxIndirectDeps > 0 && len(node.Indirect) > maxIndirectDeps {
 			l.fail.Printf("Package %s has %d indirect dependencies\n", node.Package, len(node.Indirect))
 			exceeded = true
 		}

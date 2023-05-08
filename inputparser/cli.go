@@ -2,6 +2,7 @@ package inputparser
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -24,7 +25,9 @@ func NewCommand(args ...string) (Command, error) {
 		IsGraph:   false,
 	}
 
-	for i, arg := range args[1:] {
+	for i := 0; i < len(args[1:]); i++ {
+		arg := args[i+1]
+
 		switch arg {
 		case "-g":
 			command.IsGraph = true
@@ -39,9 +42,10 @@ func NewCommand(args ...string) (Command, error) {
 
 			depsNum, err := strconv.Atoi(args[i+2])
 			if err != nil {
-				return Command{}, err
+				return Command{}, errors.New("mdd argument must be integer")
 			}
 			command.MaxDirectDeps = depsNum
+			i++
 
 		case "-mid":
 			if len(args) <= i+2 {
@@ -50,12 +54,19 @@ func NewCommand(args ...string) (Command, error) {
 
 			depsNum, err := strconv.Atoi(args[i+2])
 			if err != nil {
-				return Command{}, err
+				return Command{}, errors.New("mid argument must be integer")
 			}
 			command.MaxIndirectDeps = depsNum
+			i++
+
 		default:
+			return Command{}, fmt.Errorf("unknown argument: %s", arg)
 		}
 	}
 
 	return command, nil
+}
+
+func (c *Command) IsSetMaxDeps() bool {
+	return c.MaxDirectDeps > 0 || c.MaxIndirectDeps > 0
 }

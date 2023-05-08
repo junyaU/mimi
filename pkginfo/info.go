@@ -51,7 +51,7 @@ func getPackages(root string) (pkgs []string, err error) {
 
 func loadPackages(pkgPaths []string) ([]Info, error) {
 	config := packages.Config{
-		Mode:  packages.NeedDeps | packages.NeedImports | packages.NeedName | packages.NeedExportFile,
+		Mode:  packages.NeedDeps | packages.NeedImports | packages.NeedName,
 		Tests: false,
 	}
 
