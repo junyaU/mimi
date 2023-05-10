@@ -14,13 +14,23 @@ type Node struct {
 }
 
 type Graph struct {
-	nodes []Node
+	nodes         []Node
+	dependencyMap map[string]pkginfo.Package
 }
 
-func New(info []pkginfo.Info) *Graph {
-	graph := &Graph{}
-	analyzeDirectDeps(graph, info)
+func New(pkgOverview *pkginfo.PackageOverview) *Graph {
+	dependencyMap := make(map[string]pkginfo.Package)
+	for _, dependency := range pkgOverview.Dependencies {
+		dependencyMap[dependency.Name] = dependency
+	}
+
+	graph := &Graph{
+		dependencyMap: dependencyMap,
+	}
+
+	analyzeDirectDeps(graph, pkgOverview.Packages)
 	analyzeIndirectDeps(graph)
+
 	return graph
 }
 
@@ -41,19 +51,19 @@ func (g *Graph) PrintRows() [][]string {
 	return rows
 }
 
-func analyzeDirectDeps(graph *Graph, info []pkginfo.Info) {
-	for _, i := range info {
+func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
+	for _, pkg := range pkgs {
 		graph.nodes = append(graph.nodes, Node{
-			Package: i.Name,
-			To:      i.Imports,
+			Package: pkg.Name,
+			To:      pkg.Imports,
 		})
 	}
 
-	for _, pkgInfo := range info {
-		for _, importedPkg := range pkgInfo.Imports {
+	for _, pkg := range pkgs {
+		for _, importedPkg := range pkg.Imports {
 			for index := range graph.nodes {
 				if importedPkg == graph.nodes[index].Package {
-					graph.nodes[index].From = append(graph.nodes[index].From, pkgInfo.Name)
+					graph.nodes[index].From = append(graph.nodes[index].From, pkg.Name)
 				}
 			}
 		}
@@ -62,8 +72,9 @@ func analyzeDirectDeps(graph *Graph, info []pkginfo.Info) {
 
 func analyzeIndirectDeps(graph *Graph) {
 	for index := range graph.nodes {
+		visited := make(map[string]bool)
 		targetIndirect := make(map[string]bool)
-		findIndirectDeps(&graph.nodes[index], &graph.nodes[index], graph, targetIndirect)
+		findIndirectDeps(&graph.nodes[index], &graph.nodes[index], graph.dependencyMap, targetIndirect, visited)
 
 		for pkg := range targetIndirect {
 			graph.nodes[index].Indirect = append(graph.nodes[index].Indirect, pkg)
@@ -71,16 +82,23 @@ func analyzeIndirectDeps(graph *Graph) {
 	}
 }
 
-func findIndirectDeps(target *Node, node *Node, graph *Graph, targetIndirect map[string]bool) {
+func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo.Package, targetIndirect map[string]bool, visited map[string]bool) {
 	for _, importedPkg := range node.To {
-		for index := range graph.nodes {
-			if importedPkg == graph.nodes[index].Package && target.Package != graph.nodes[index].Package {
-				if !targetIndirect[graph.nodes[index].Package] && !utils.Contains(target.To, graph.nodes[index].Package) {
-					targetIndirect[graph.nodes[index].Package] = true
-				}
-
-				findIndirectDeps(target, &graph.nodes[index], graph, targetIndirect)
-			}
+		if visited[importedPkg] {
+			continue
 		}
+
+		visited[importedPkg] = true
+
+		deps, exist := dependencyMap[importedPkg]
+		if !exist || target.Package == deps.Name {
+			continue
+		}
+
+		if !targetIndirect[deps.Name] && !utils.Contains(target.To, deps.Name) {
+			targetIndirect[deps.Name] = true
+		}
+
+		findIndirectDeps(target, &Node{Package: deps.Name, To: deps.Imports}, dependencyMap, targetIndirect, visited)
 	}
 }

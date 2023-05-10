@@ -9,18 +9,61 @@ import (
 	"strings"
 )
 
-type Info struct {
+type Package struct {
 	Name    string
 	Imports []string
 }
 
-func New(root string) ([]Info, error) {
+type PackageOverview struct {
+	Packages     []Package
+	Dependencies []Package
+	ModuleName   string
+}
+
+var (
+	loadConfig = &packages.Config{
+		Mode: packages.NeedImports | packages.NeedDeps | packages.NeedName,
+	}
+)
+
+func New(root string) (*PackageOverview, error) {
 	packagePaths, err := getPackages(root)
 	if err != nil {
 		return nil, err
 	}
 
-	return loadPackages(packagePaths)
+	moduleName, err := utils.GetModuleName()
+	if err != nil {
+		return nil, err
+	}
+
+	pkgOverview := PackageOverview{
+		ModuleName: moduleName,
+	}
+
+	if err := loadPackages(&pkgOverview, packagePaths); err != nil {
+		return nil, err
+	}
+
+	if err := loadDependencies(&pkgOverview); err != nil {
+		return nil, err
+	}
+
+	return &pkgOverview, nil
+}
+
+func (p *PackageOverview) IsOwnPackage(pkgName string) bool {
+	return strings.HasPrefix(pkgName, p.ModuleName)
+}
+
+func (p *PackageOverview) ExistsDependency(pkgName string) bool {
+	for _, pkg := range p.Dependencies {
+		if pkg.Name == pkgName {
+			return true
+		}
+	}
+
+	return false
 }
 
 func getPackages(root string) (pkgs []string, err error) {
@@ -50,41 +93,75 @@ func getPackages(root string) (pkgs []string, err error) {
 	return
 }
 
-func loadPackages(pkgPaths []string) ([]Info, error) {
+func loadPackages(pkgOverview *PackageOverview, pkgPaths []string) error {
 	if len(pkgPaths) == 0 {
-		return nil, errors.New("no packages")
+		return errors.New("no packages")
 	}
 
-	config := packages.Config{
-		Mode:  packages.NeedDeps | packages.NeedImports | packages.NeedName,
-		Tests: false,
-	}
-
-	pkgs, err := packages.Load(&config, pkgPaths...)
+	pkgs, err := packages.Load(loadConfig, pkgPaths...)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	moduleName, err := utils.GetModuleName()
-	if err != nil {
-		return nil, err
-	}
-
-	var infos []Info
 
 	for _, pkg := range pkgs {
 		var imports []string
-		for k, _ := range pkg.Imports {
-			if strings.Contains(k, moduleName) {
-				imports = append(imports, k)
+		for importPkg := range pkg.Imports {
+			if pkgOverview.IsOwnPackage(importPkg) {
+				imports = append(imports, importPkg)
 			}
 		}
 
-		infos = append(infos, Info{
+		pkgOverview.Packages = append(pkgOverview.Packages, Package{
 			Name:    pkg.ID,
 			Imports: imports,
 		})
 	}
 
-	return infos, nil
+	return nil
+}
+
+func loadDependencies(pkgOverview *PackageOverview) error {
+	for _, pkg := range pkgOverview.Packages {
+		if err := insertDependencies(pkgOverview, pkg.Imports); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func insertDependencies(pkgOverview *PackageOverview, imports []string) error {
+	loadPkgs, err := packages.Load(loadConfig, imports...)
+	if err != nil {
+		return err
+	}
+
+	for _, loadPkg := range loadPkgs {
+		if pkgOverview.ExistsDependency(loadPkg.ID) {
+			continue
+		}
+
+		var importPkgs []string
+		importPkgs = make([]string, 0, len(loadPkg.Imports))
+		for importPkg := range loadPkg.Imports {
+			if pkgOverview.IsOwnPackage(importPkg) {
+				importPkgs = append(importPkgs, importPkg)
+			}
+		}
+
+		pkgOverview.Dependencies = append(pkgOverview.Dependencies, Package{
+			Name:    loadPkg.ID,
+			Imports: importPkgs,
+		})
+
+		if len(importPkgs) == 0 {
+			continue
+		}
+
+		if err := insertDependencies(pkgOverview, importPkgs); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
