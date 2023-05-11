@@ -2,7 +2,6 @@ package pkginfo
 
 import (
 	"github.com/junyaU/mimi/utils"
-	"log"
 	"testing"
 )
 
@@ -85,8 +84,17 @@ func TestLoadPackages(t *testing.T) {
 		},
 	}
 
+	moduleName, err := utils.GetModuleName()
+	if err != nil {
+		t.Errorf("failed to get module name: %v", err)
+	}
+
 	for _, test := range tests {
-		pkgInfo, err := loadPackages(test.pkgPaths)
+		pkgOverview := PackageOverview{
+			ModuleName: moduleName,
+		}
+
+		err := loadPackages(&pkgOverview, test.pkgPaths)
 		if err != nil && !test.wantErr {
 			t.Error(err)
 		}
@@ -96,14 +104,12 @@ func TestLoadPackages(t *testing.T) {
 		}
 
 		if !test.wantErr {
-			if pkgInfo[0].Name != "github.com/junyaU/mimi/testdata/layer/domain/model/flow" {
+			if pkgOverview.Packages[0].Name != "github.com/junyaU/mimi/testdata/layer/domain/model/flow" {
 				t.Errorf("loadPackages(%v) should return %v", test.pkgPaths, test.importPkg)
 			}
 
 			for _, importPkg := range test.importPkg {
-				log.Println(importPkg)
-				log.Println(pkgInfo[0].Imports)
-				if !utils.Contains(pkgInfo[0].Imports, importPkg) {
+				if !utils.Contains(pkgOverview.Packages[0].Imports, importPkg) {
 					t.Errorf("loadPackages(%v) should return %v", test.pkgPaths, test.importPkg)
 				}
 			}
