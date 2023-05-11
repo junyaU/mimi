@@ -26,7 +26,12 @@ func main() {
 	graph := depgraph.New(info)
 
 	if command.IsGraph {
-		graphDrawer := output.NewGraphDrawer(command.MaxDirectDeps, command.MaxIndirectDeps)
+		graphDrawer, err := output.NewGraphDrawer(command.MaxDirectDeps, command.MaxIndirectDeps)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			os.Exit(1)
+		}
+
 		if err := graphDrawer.Draw(graph.PrintRows()); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			os.Exit(1)

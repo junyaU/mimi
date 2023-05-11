@@ -1,6 +1,7 @@
 package output
 
 import (
+	"fmt"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"os"
@@ -14,7 +15,11 @@ type GraphDrawer struct {
 	limitColor      func(a ...interface{}) string
 }
 
-func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) *GraphDrawer {
+func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) (*GraphDrawer, error) {
+	if maxDirectDeps < 0 || maxIndirectDeps < 0 {
+		return nil, fmt.Errorf("invalid max deps")
+	}
+
 	table := tablewriter.NewWriter(os.Stdout)
 
 	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps"})
@@ -30,10 +35,18 @@ func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) *GraphDrawer {
 		maxDirectDeps:   maxDirectDeps,
 		maxIndirectDeps: maxIndirectDeps,
 		limitColor:      color.New(color.FgRed).SprintFunc(),
-	}
+	}, nil
 }
 
 func (g *GraphDrawer) Draw(rows [][]string) error {
+	if len(rows) == 0 {
+		return fmt.Errorf("no packages found")
+	}
+
+	if len(rows[0]) != 3 {
+		return fmt.Errorf("invalid rows")
+	}
+
 	for _, row := range rows {
 		directDepsNum, err := strconv.Atoi(row[1])
 		if err != nil {
