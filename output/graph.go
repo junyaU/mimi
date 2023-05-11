@@ -17,7 +17,7 @@ type GraphDrawer struct {
 func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) *GraphDrawer {
 	table := tablewriter.NewWriter(os.Stdout)
 
-	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps", "Depended By"})
+	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps"})
 
 	table.SetRowLine(true)
 	table.SetCenterSeparator("+")

@@ -8,8 +8,7 @@ import (
 
 type Node struct {
 	Package  string
-	From     []string
-	To       []string
+	Direct   []string
 	Indirect []string
 }
 
@@ -43,9 +42,8 @@ func (g *Graph) PrintRows() [][]string {
 	for _, node := range g.nodes {
 		rows = append(rows, []string{
 			node.Package,
-			strconv.Itoa(len(node.To)),
+			strconv.Itoa(len(node.Direct)),
 			strconv.Itoa(len(node.Indirect)),
-			strconv.Itoa(len(node.From)),
 		})
 	}
 	return rows
@@ -55,18 +53,8 @@ func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
 	for _, pkg := range pkgs {
 		graph.nodes = append(graph.nodes, Node{
 			Package: pkg.Name,
-			To:      pkg.Imports,
+			Direct:  pkg.Imports,
 		})
-	}
-
-	for _, pkg := range pkgs {
-		for _, importedPkg := range pkg.Imports {
-			for index := range graph.nodes {
-				if importedPkg == graph.nodes[index].Package {
-					graph.nodes[index].From = append(graph.nodes[index].From, pkg.Name)
-				}
-			}
-		}
 	}
 }
 
@@ -83,7 +71,7 @@ func analyzeIndirectDeps(graph *Graph) {
 }
 
 func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo.Package, targetIndirect map[string]bool, visited map[string]bool) {
-	for _, importedPkg := range node.To {
+	for _, importedPkg := range node.Direct {
 		if visited[importedPkg] {
 			continue
 		}
@@ -95,10 +83,10 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 			continue
 		}
 
-		if !targetIndirect[deps.Name] && !utils.Contains(target.To, deps.Name) {
+		if !targetIndirect[deps.Name] && !utils.Contains(target.Direct, deps.Name) {
 			targetIndirect[deps.Name] = true
 		}
 
-		findIndirectDeps(target, &Node{Package: deps.Name, To: deps.Imports}, dependencyMap, targetIndirect, visited)
+		findIndirectDeps(target, &Node{Package: deps.Name, Direct: deps.Imports}, dependencyMap, targetIndirect, visited)
 	}
 }
