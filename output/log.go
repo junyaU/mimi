@@ -1,6 +1,7 @@
 package output
 
 import (
+	"errors"
 	"github.com/fatih/color"
 	"github.com/junyaU/mimi/depgraph"
 )
@@ -13,14 +14,18 @@ type LogDrawer struct {
 	fail  *color.Color
 }
 
-func NewLogDrawer(nodes []depgraph.Node) *LogDrawer {
+func NewLogDrawer(nodes []depgraph.Node) (*LogDrawer, error) {
+	if len(nodes) == 0 {
+		return nil, errors.New("no nodes")
+	}
+
 	return &LogDrawer{
 		nodes: nodes,
 		pkg:   color.New(color.FgGreen).Add(color.Bold),
 		head:  color.New(color.FgCyan).Add(color.Bold),
 		base:  color.New(color.FgWhite).Add(color.Bold),
 		fail:  color.New(color.FgRed),
-	}
+	}, nil
 }
 
 func (l *LogDrawer) Draw() {
