@@ -2,7 +2,7 @@ package pkginfo
 
 import (
 	"errors"
-	"github.com/junyaU/mimi/utils"
+	"github.com/junyaU/mimi/pkg/utils"
 	"golang.org/x/tools/go/packages"
 	"io/fs"
 	"path/filepath"

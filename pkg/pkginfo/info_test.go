@@ -1,7 +1,7 @@
 package pkginfo
 
 import (
-	"github.com/junyaU/mimi/utils"
+	"github.com/junyaU/mimi/pkg/utils"
 	"testing"
 )
 
