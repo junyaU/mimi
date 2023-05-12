@@ -1,7 +1,7 @@
 package output
 
 import (
-	"github.com/junyaU/mimi/depgraph"
+	"github.com/junyaU/mimi/pkg/depgraph"
 	"testing"
 )
 

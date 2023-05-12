@@ -3,7 +3,7 @@ package output
 import (
 	"errors"
 	"github.com/fatih/color"
-	"github.com/junyaU/mimi/depgraph"
+	"github.com/junyaU/mimi/pkg/depgraph"
 )
 
 type LogDrawer struct {

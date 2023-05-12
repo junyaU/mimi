@@ -1,7 +1,7 @@
 package depgraph
 
 import (
-	"github.com/junyaU/mimi/pkginfo"
+	"github.com/junyaU/mimi/pkg/pkginfo"
 	"github.com/junyaU/mimi/utils"
 	"strconv"
 	"testing"
