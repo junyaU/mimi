@@ -1,51 +1,28 @@
+/*
+Copyright © 2023 junyaU junyaadgj@gmail.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 package main
 
 import "github.com/junyaU/mimi/cmd"
 
 func main() {
-	//command, err := inputparser.NewCommand(os.Args[1:]...)
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	//	os.Exit(1)
-	//
-	//}
-	//
-	//info, err := pkginfo.New(command.Path)
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	//	os.Exit(1)
-	//}
-	//
-	//graph := depgraph.New(info)
-	//
-	//if command.IsGraph {
-	//	graphDrawer, err := output2.NewGraphDrawer(command.MaxDirectDeps, command.MaxIndirectDeps)
-	//	if err != nil {
-	//		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	//		os.Exit(1)
-	//	}
-	//
-	//	if err := graphDrawer.Draw(graph.PrintRows()); err != nil {
-	//		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	//		os.Exit(1)
-	//	}
-	//}
-	//
-	//drawer, err := output2.NewLogDrawer(graph.GetNodes())
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	//	os.Exit(1)
-	//}
-	//
-	//if command.IsVerbose {
-	//	drawer.Draw()
-	//}
-	//
-	//if command.IsSetMaxDeps() && drawer.ReportExceededDeps(command.MaxDirectDeps, command.MaxIndirectDeps) {
-	//	fmt.Fprintf(os.Stderr, "Error: Exceeded max direct or indirect dependencies\n")
-	//	os.Exit(1)
-	//}
-	//
-
 	cmd.Execute()
 }
