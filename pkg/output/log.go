@@ -2,6 +2,7 @@ package output
 
 import (
 	"errors"
+	"fmt"
 	"github.com/fatih/color"
 	"github.com/junyaU/mimi/pkg/depgraph"
 )
@@ -49,6 +50,7 @@ func (l *LogDrawer) Draw() {
 				l.base.Println("    " + indirect)
 			}
 		}
+		fmt.Print("\n")
 	}
 }
 
