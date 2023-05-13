@@ -37,9 +37,6 @@ It analyzes the imports within the project, and provides a quantified view of bo
 Example usage:
 	$ mimi list ./path/to/your/project
 This will output a list of all packages in your project and the number of their direct and indirect dependencies.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
