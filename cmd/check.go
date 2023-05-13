@@ -25,18 +25,12 @@ var checkCmd = &cobra.Command{
 	helping to avoid overly complex package structures. Specify the package path
 	as an argument, and set the thresholds using the --direct and --indirect flags.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			cobra.CheckErr("path is required")
-		}
-
-		info, err := pkginfo.New(args[0])
+		depsChecker, err := newDepsChecker(args)
 		if err != nil {
-			cobra.CheckErr(fmt.Errorf("failed to get package info: %w", err))
+			cobra.CheckErr(err)
 		}
 
-		graph := depgraph.New(info)
-
-		drawer, err := output.NewLogDrawer(graph.GetNodes())
+		drawer, err := output.NewLogDrawer(depsChecker.GetNodes())
 		if err != nil {
 			cobra.CheckErr(fmt.Errorf("failed to create drawer: %w", err))
 		}
@@ -54,4 +48,17 @@ func init() {
 
 	checkCmd.Flags().IntVarP(&directThreshold, "direct", "d", 0, "Threshold for direct dependencies")
 	checkCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
+}
+
+func newDepsChecker(args []string) (*depgraph.Graph, error) {
+	if len(args) == 0 {
+		return nil, fmt.Errorf("path is required")
+	}
+
+	info, err := pkginfo.New(args[0])
+	if err != nil {
+		return nil, fmt.Errorf("failed to get package info: %w", err)
+	}
+
+	return depgraph.New(info), nil
 }

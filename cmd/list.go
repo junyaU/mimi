@@ -5,9 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/junyaU/mimi/pkg/depgraph"
 	"github.com/junyaU/mimi/pkg/output"
-	"github.com/junyaU/mimi/pkg/pkginfo"
 	"github.com/spf13/cobra"
 )
 
@@ -22,18 +20,12 @@ including the number of imports and the packages that import it.
 This can be used to get a quick overview of the dependencies in 
 your project. Specify the package path as an argument.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			cobra.CheckErr("path is required")
-		}
-
-		info, err := pkginfo.New(args[0])
+		depsChecker, err := newDepsChecker(args)
 		if err != nil {
-			cobra.CheckErr(fmt.Errorf("failed to get package info: %w", err))
+			cobra.CheckErr(err)
 		}
 
-		graph := depgraph.New(info)
-
-		drawer, err := output.NewLogDrawer(graph.GetNodes())
+		drawer, err := output.NewLogDrawer(depsChecker.GetNodes())
 		if err != nil {
 			cobra.CheckErr(fmt.Errorf("failed to create drawer: %w", err))
 		}
