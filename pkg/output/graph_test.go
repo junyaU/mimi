@@ -2,7 +2,6 @@ package output
 
 import "testing"
 
-// table driven test
 func TestNewGraphDrawer(t *testing.T) {
 	tests := []struct {
 		maxDirectDeps   int
@@ -44,7 +43,7 @@ func TestGraphDrawer_Draw(t *testing.T) {
 			t.Errorf("NewGraphDrawer(1, 1) should not return error")
 		}
 
-		err = graphDrawer.Draw(test.rows)
+		err = graphDrawer.DrawTable(test.rows)
 		if err != nil && !test.wantErr {
 			t.Errorf("Draw(%v) should not return error", test.rows)
 		}

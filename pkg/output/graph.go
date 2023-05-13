@@ -38,7 +38,7 @@ func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) (*GraphDrawer, error
 	}, nil
 }
 
-func (g *GraphDrawer) Draw(rows [][]string) error {
+func (g *GraphDrawer) DrawTable(rows [][]string) error {
 	if len(rows) == 0 {
 		return fmt.Errorf("no packages found")
 	}

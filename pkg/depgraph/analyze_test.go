@@ -9,7 +9,7 @@ import (
 
 const (
 	testPackage = "github.com/junyaU/mimi/testdata/layer/domain/model/flow"
-	testPath    = "./../testdata/layer/domain/model/flow"
+	testPath    = "./../../testdata/layer/domain/model/flow"
 )
 
 func TestNewGraph(t *testing.T) {

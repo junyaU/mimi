@@ -10,7 +10,7 @@ func TestNew(t *testing.T) {
 		path    string
 		wantErr bool
 	}{
-		{"../testdata", false},
+		{"../../testdata", false},
 		{"../testdata/invalid", true},
 	}
 
@@ -32,12 +32,12 @@ func TestGetPackages(t *testing.T) {
 		expect  []string
 		wantErr bool
 	}{
-		{"../testdata/layer/domain/model",
+		{"../../testdata/layer/domain/model",
 			[]string{
-				"./../testdata/layer/domain/model/creator",
-				"./../testdata/layer/domain/model/flow",
-				"./../testdata/layer/domain/model/necessity",
-				"./../testdata/layer/domain/model/recipe",
+				"./../../testdata/layer/domain/model/creator",
+				"./../../testdata/layer/domain/model/flow",
+				"./../../testdata/layer/domain/model/necessity",
+				"./../../testdata/layer/domain/model/recipe",
 			},
 			false},
 		{"../testdata/invalid", nil, true},
@@ -70,7 +70,7 @@ func TestLoadPackages(t *testing.T) {
 		wantErr   bool
 	}{
 		{
-			[]string{"../testdata/layer/domain/model/flow"},
+			[]string{"../../testdata/layer/domain/model/flow"},
 			[]string{
 				"github.com/junyaU/mimi/testdata/layer/domain",
 				"github.com/junyaU/mimi/testdata/layer/domain/model/recipe",
