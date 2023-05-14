@@ -1,27 +1,67 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+Copyright © 2023 junyaU <junyaadgj@gmail.com>
 */
 package cmd
 
 import (
 	"fmt"
-
+	"github.com/junyaU/mimi/pkg/configparser"
+	"github.com/junyaU/mimi/pkg/depgraph"
 	"github.com/spf13/cobra"
 )
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
-	Use:   "run",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "run [config file path]",
+	Short: "Runs commands specified in the configuration file",
+	Long: `The run command reads a configuration file and executes the commands specified in it. 
+The configuration file should be in YAML format and contain a list of commands to execute.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run called")
+		if err := checkArgsNotEmpty(args); err != nil {
+			cobra.CheckErr(err)
+		}
+
+		config, err := configparser.NewYmlConfig(args[0])
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+
+		commands, err := config.GetCommands()
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+
+		for i, command := range commands {
+			i += 1
+			fmt.Printf("command %d: %s %s \n", i, command.Name, command.Path)
+
+			checker, err := newDepsChecker(command.Path)
+			if err != nil {
+				cobra.CheckErr(fmt.Errorf("command %d failed: %w", i, err))
+			}
+
+			if err := executeCommand(command, checker); err != nil {
+				cobra.CheckErr(fmt.Errorf("command %d failed: %w", i, err))
+			}
+
+			fmt.Printf("\n")
+		}
+
+		fmt.Printf("Run command completed successfully. Processed %d commands from the configuration file.\n", len(commands))
 	},
+}
+
+func executeCommand(command configparser.Command, checker *depgraph.Graph) error {
+	switch command.Name {
+	case "list":
+		return outputDepsList(checker.GetNodes())
+	case "table":
+		return drawDepsTable(checker.PrintRows(), command.DirectThreshold, command.IndirectThreshold)
+	case "check":
+		return checkDepsThresholds(checker.GetNodes(), command.DirectThreshold, command.IndirectThreshold)
+	default:
+		return fmt.Errorf("invalid command name: %s", command.Name)
+	}
 }
 
 func init() {

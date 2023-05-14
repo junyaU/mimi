@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 junyaU junya@adgj@gmail.com
+Copyright © 2023 junyaU <junya@adgj@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,9 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
+	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/pkginfo"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -50,4 +53,21 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func checkArgsNotEmpty(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("no package path provided")
+	}
+
+	return nil
+}
+
+func newDepsChecker(path string) (*depgraph.Graph, error) {
+	info, err := pkginfo.New(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get package info: %w", err)
+	}
+
+	return depgraph.New(info), nil
 }
