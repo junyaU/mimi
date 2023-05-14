@@ -23,11 +23,18 @@ Mimi is a command-line interface (CLI) tool written in Go that quantifies the de
 
 
 ## Installation
-
-Assuming you have a working Go environment, Mimi can be installed by running:
+Assuming you have a working Go environment (version 1.1.9 or newer), Mimi can be installed by running:
 
 ```sh
+$ go get -u github.com/junyaU/mimi
+
 $ go install github.com/junyaU/mimi
+```
+
+Make sure that your PATH includes the $GOPATH/bin directory so your commands can be easily used:
+
+```sh
+$ export PATH=$PATH:$GOPATH/bin
 ```
 
 ## Usage
@@ -158,7 +165,7 @@ In the above example, three commands check, list, and table will be executed.
 Contributions to Mimi are welcome! Feel free to open an issue or submit a pull request if you have a way to improve this tool.
 
 ## License
-MIT License
+Mimi is released under the MIT License. See the [LICENSE](https://github.com/junyaU/mimi/LICENSE) file for more details.
 
 
 
