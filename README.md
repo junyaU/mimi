@@ -2,6 +2,19 @@
 
 Mimi is a command-line interface (CLI) tool written in Go that quantifies the dependencies of Go packages. It helps you manage the complexity of your Go projects by providing detailed information about both direct and indirect dependencies.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Check Command](#check-command)
+    - [Table Command](#table-command)
+    - [List Command](#list-command)
+    - [Run Command](#run-command)
+- [Configuration File](#configuration-file)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 
 - Quantify direct and indirect dependencies of a Go package.
@@ -21,7 +34,8 @@ $ go install github.com/junyaU/mimi
 Mimi provides several commands to analyze your Go packages.
 
 ### Check Command
-Checks if the direct and indirect dependencies of a given Go package exceed the given thresholds.
+Checks if the direct and indirect dependencies of a given Go package exceed the given thresholds.\
+The direct_threshold parameter specifies the maximum number of direct dependencies allowed, while the indirect_threshold parameter specifies the maximum number of indirect dependencies allowed.
 
 ```sh
 $ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold>
@@ -100,6 +114,45 @@ github.com/junyaU/mimi/testdata/layer/domain/model/necessity
   Indirect Deps:
     github.com/junyaU/mimi/testdata/layer/domain/model/creator
 ```
+
+### Run Command
+You can use the run command by specifying the path to the configuration file as follows:
+
+```sh
+$ mimi run <config_file_path>
+```
+
+This will read the configuration from the specified YAML file and execute the commands defined in it.
+
+#### Output
+
+Upon successful execution, the run command will display a message indicating that the command was completed successfully along with the number of commands processed. If an error occurs during the execution of any command, it will stop the process and display an error message.
+
+Please note that the actual output will depend on the commands specified in the configuration file. For instance, the list command will print a list of dependencies, whereas the table command will generate a table displaying the dependencies.
+
+
+## Configuration File
+The configuration file is a YAML file that contains a list of commands to be executed. Each command has a name and parameters associated with it. Here is an example of how the configuration file looks like:
+
+```yaml
+version: 1.0
+commands:
+  - name: check
+    parameters:
+      path: "./"
+      directThreshold: 10
+      indirectThreshold: 20
+  - name: list
+    parameters:
+      path: "./"
+  - name: table
+    parameters:
+      path: "./"
+      directThreshold: 10
+      indirectThreshold: 20
+```
+
+In the above example, three commands check, list, and table will be executed.
 
 ## Contributing
 Contributions to Mimi are welcome! Feel free to open an issue or submit a pull request if you have a way to improve this tool.
