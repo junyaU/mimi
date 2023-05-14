@@ -165,7 +165,7 @@ In the above example, three commands check, list, and table will be executed.
 Contributions to Mimi are welcome! Feel free to open an issue or submit a pull request if you have a way to improve this tool.
 
 ## License
-Mimi is released under the MIT License. See the [LICENSE](https://github.com/junyaU/mimi/LICENSE) file for more details.
+Mimi is released under the MIT License. See the [LICENSE](https://github.com/junyaU/mimi/blob/master/LICENSE) file for more details.
 
 
 
