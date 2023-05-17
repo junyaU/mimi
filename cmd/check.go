@@ -33,9 +33,7 @@ var checkCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		depsChecker.AnalyzeIndirectDeps()
-
-		if err := checkDepsThresholds(depsChecker.GetNodes(), directThreshold, indirectThreshold); err != nil {
+		if err := checkDepsThresholds(depsChecker, directThreshold, indirectThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -48,8 +46,10 @@ func init() {
 	checkCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
 }
 
-func checkDepsThresholds(nodes []depgraph.Node, direct, indirect int) error {
-	drawer, err := output.NewLogDrawer(nodes)
+func checkDepsThresholds(checker *depgraph.Graph, direct, indirect int) error {
+	checker.AnalyzeIndirectDeps()
+
+	drawer, err := output.NewLogDrawer(checker.GetNodes())
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}

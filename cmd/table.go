@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/junyaU/mimi/pkg/depgraph"
 	"github.com/junyaU/mimi/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -28,9 +29,7 @@ risks in the package dependency structure. Specify the package path as an argume
 			cobra.CheckErr(err)
 		}
 
-		depsChecker.AnalyzeIndirectDeps()
-
-		if err := drawDepsTable(depsChecker.PrintRows(), directThreshold, indirectThreshold); err != nil {
+		if err := drawDepsTable(depsChecker, directThreshold, indirectThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -43,13 +42,15 @@ func init() {
 	tableCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
 }
 
-func drawDepsTable(rows [][]string, direct, indirect int) error {
+func drawDepsTable(checker *depgraph.Graph, direct, indirect int) error {
+	checker.AnalyzeIndirectDeps()
+
 	drawer, err := output.NewGraphDrawer(direct, indirect)
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}
 
-	if err := drawer.DrawTable(rows); err != nil {
+	if err := drawer.DrawTable(checker.PrintRows()); err != nil {
 		return fmt.Errorf("failed to draw table: %w", err)
 	}
 

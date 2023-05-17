@@ -7,10 +7,10 @@ import (
 )
 
 type Node struct {
-	Package  string
-	Direct   []string
-	Indirect []string
-	//Dependents []string
+	Package    string
+	Direct     []string
+	Indirect   []string
+	Dependents []string
 }
 
 type Graph struct {
@@ -49,12 +49,17 @@ func (g *Graph) PrintRows() [][]string {
 	return rows
 }
 
-func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
-	for _, pkg := range pkgs {
-		graph.nodes = append(graph.nodes, Node{
-			Package: pkg.Name,
-			Direct:  pkg.Imports,
-		})
+func (g *Graph) AnalyzeFrequencyOfUse() {
+	for _, node := range g.nodes {
+		for _, importedPkg := range node.Direct {
+			for index := range g.nodes {
+				if g.nodes[index].Package == importedPkg {
+					if !utils.Contains(g.nodes[index].Dependents, node.Package) {
+						g.nodes[index].Dependents = append(g.nodes[index].Dependents, node.Package)
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -88,5 +93,14 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 		}
 
 		findIndirectDeps(target, &Node{Package: deps.Name, Direct: deps.Imports}, dependencyMap, targetIndirect, visited)
+	}
+}
+
+func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
+	for _, pkg := range pkgs {
+		graph.nodes = append(graph.nodes, Node{
+			Package: pkg.Name,
+			Direct:  pkg.Imports,
+		})
 	}
 }
