@@ -10,6 +10,7 @@ Mimi is a command-line interface (CLI) tool written in Go that quantifies the de
     - [Check Command](#check-command)
     - [Table Command](#table-command)
     - [List Command](#list-command)
+    - [Deps Command](#deps-command)
     - [Run Command](#run-command)
 - [Configuration File](#configuration-file)
 - [Contributing](#contributing)
@@ -121,6 +122,33 @@ github.com/junyaU/mimi/testdata/layer/domain/model/necessity
   Indirect Deps:
     github.com/junyaU/mimi/testdata/layer/domain/model/creator
 ```
+
+### Deps Command
+Displays the dependents of a given Go package. A dependent is a package that relies on the specified package. This command can be particularly useful for identifying potential issues or impacts before making changes to the package.
+
+```sh
+$ mimi deps <package_path>
+```
+
+ex) Display the dependents of the `github.com/junyaU/mimi/testdata/layer/domain/model` package.
+
+```sh
+$ mimi deps ./testdata/layer/domain/model
+github.com/junyaU/mimi/testdata/layer/domain/model/creator
+  github.com/junyaU/mimi/testdata/layer/domain/model/recipe
+
+github.com/junyaU/mimi/testdata/layer/domain/model/recipe
+  github.com/junyaU/mimi/testdata/layer/domain/model/flow
+  github.com/junyaU/mimi/testdata/layer/domain/model/necessity
+
+github.com/junyaU/mimi/testdata/layer/domain/model/flow
+  No dependents
+
+github.com/junyaU/mimi/testdata/layer/domain/model/necessity
+  No dependents
+```
+
+The output above indicates that the `creator` package is used by the `recipe` package, and the `recipe` package is used by both the `flow` and `necessity` packages. Neither the `flow` nor the `necessity` packages are used by any other packages.
 
 ### Run Command
 You can use the run command by specifying the path to the configuration file as follows:
