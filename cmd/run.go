@@ -59,8 +59,8 @@ func executeCommand(command configparser.Command, checker *depgraph.Graph) error
 		return drawDepsTable(checker, command.DirectThreshold, command.IndirectThreshold)
 	case "check":
 		return checkDepsThresholds(checker, command.DirectThreshold, command.IndirectThreshold)
-	case "freq":
-		return outputFrequency(checker, command.Path)
+	case "deps":
+		return outputDependents(checker, command.Path)
 	default:
 		return fmt.Errorf("invalid command name: %s", command.Name)
 	}

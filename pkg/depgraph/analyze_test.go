@@ -114,14 +114,14 @@ func TestAnalyzeIndirectDeps(t *testing.T) {
 	}
 }
 
-func TestAnalyzeFrequencyOfUse(t *testing.T) {
+func TestAnalyzeDependents(t *testing.T) {
 	info, err := pkginfo.New("./../../testdata/layer/domain/model/")
 	if err != nil {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
 	graph := New(info)
-	graph.AnalyzeFrequencyOfUse()
+	graph.AnalyzeDependents()
 
 	recipePkg := "github.com/junyaU/mimi/testdata/layer/domain/model/recipe"
 	if graph.nodes[0].Dependents[0] != recipePkg {

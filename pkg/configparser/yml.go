@@ -30,7 +30,7 @@ type Command struct {
 
 func (c *ConfigCommand) IsVaild() bool {
 	switch c.Name {
-	case "check", "list", "table", "freq":
+	case "check", "list", "table", "deps":
 	default:
 		return false
 	}

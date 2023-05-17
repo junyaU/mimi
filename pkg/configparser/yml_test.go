@@ -36,7 +36,7 @@ func TestYmlConfig_GetCommands(t *testing.T) {
 		t.Errorf("GetCommands() should not return error: %v", err)
 	}
 
-	if len(commands) != 4 {
+	if len(commands) != 5 {
 		t.Errorf("GetCommands() should return 4 commands")
 	}
 

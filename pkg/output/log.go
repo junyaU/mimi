@@ -74,7 +74,7 @@ func (l *LogDrawer) ReportExceededDeps(maxDirectDeps int, maxIndirectDeps int) b
 	return exceeded
 }
 
-func (l *LogDrawer) DrawFrequency(path string) error {
+func (l *LogDrawer) DrawDependents(path string) error {
 	moduleName, err := utils.GetModuleName()
 	if err != nil {
 		return err

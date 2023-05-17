@@ -18,6 +18,6 @@ commands:
   - name: list
     parameters:
       path: ./testdata/layer/domain/model/flow
-  - name: freq
+  - name: deps
     parameters:
       path: ./testdata/layer/domain/model/

@@ -49,7 +49,7 @@ func (g *Graph) PrintRows() [][]string {
 	return rows
 }
 
-func (g *Graph) AnalyzeFrequencyOfUse() {
+func (g *Graph) AnalyzeDependents() {
 	for _, node := range g.nodes {
 		for _, importedPkg := range node.Direct {
 			for index := range g.nodes {
