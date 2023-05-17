@@ -11,7 +11,7 @@ func TestNewLogDrawer(t *testing.T) {
 		wantErr bool
 	}{
 		{[]depgraph.Node{}, true},
-		{[]depgraph.Node{{"dummy", []string{}, []string{}}}, false},
+		{[]depgraph.Node{{"dummy", []string{}, []string{}, []string{}}}, false},
 	}
 
 	for _, test := range tests {
@@ -35,14 +35,14 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 		expect          bool
 	}{
 		{[]depgraph.Node{
-			{"a", []string{"a"}, []string{"b"}},
+			{"a", []string{"a"}, []string{"b"}, []string{"c"}},
 		},
 			1,
 			1,
 			false,
 		},
 		{[]depgraph.Node{
-			{"a", []string{"a", "b", "c"}, []string{"b"}},
+			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}},
 		},
 			2,
 			1,

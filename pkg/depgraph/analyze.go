@@ -7,9 +7,10 @@ import (
 )
 
 type Node struct {
-	Package  string
-	Direct   []string
-	Indirect []string
+	Package    string
+	Direct     []string
+	Indirect   []string
+	Dependents []string
 }
 
 type Graph struct {
@@ -28,7 +29,6 @@ func New(pkgOverview *pkginfo.PackageOverview) *Graph {
 	}
 
 	analyzeDirectDeps(graph, pkgOverview.Packages)
-	analyzeIndirectDeps(graph)
 
 	return graph
 }
@@ -49,23 +49,28 @@ func (g *Graph) PrintRows() [][]string {
 	return rows
 }
 
-func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
-	for _, pkg := range pkgs {
-		graph.nodes = append(graph.nodes, Node{
-			Package: pkg.Name,
-			Direct:  pkg.Imports,
-		})
+func (g *Graph) AnalyzeDependents() {
+	for _, node := range g.nodes {
+		for _, importedPkg := range node.Direct {
+			for index := range g.nodes {
+				if g.nodes[index].Package == importedPkg {
+					if !utils.Contains(g.nodes[index].Dependents, node.Package) {
+						g.nodes[index].Dependents = append(g.nodes[index].Dependents, node.Package)
+					}
+				}
+			}
+		}
 	}
 }
 
-func analyzeIndirectDeps(graph *Graph) {
-	for index := range graph.nodes {
+func (g *Graph) AnalyzeIndirectDeps() {
+	for index := range g.nodes {
 		visited := make(map[string]bool)
 		targetIndirect := make(map[string]bool)
-		findIndirectDeps(&graph.nodes[index], &graph.nodes[index], graph.dependencyMap, targetIndirect, visited)
+		findIndirectDeps(&g.nodes[index], &g.nodes[index], g.dependencyMap, targetIndirect, visited)
 
 		for pkg := range targetIndirect {
-			graph.nodes[index].Indirect = append(graph.nodes[index].Indirect, pkg)
+			g.nodes[index].Indirect = append(g.nodes[index].Indirect, pkg)
 		}
 	}
 }
@@ -88,5 +93,14 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 		}
 
 		findIndirectDeps(target, &Node{Package: deps.Name, Direct: deps.Imports}, dependencyMap, targetIndirect, visited)
+	}
+}
+
+func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
+	for _, pkg := range pkgs {
+		graph.nodes = append(graph.nodes, Node{
+			Package: pkg.Name,
+			Direct:  pkg.Imports,
+		})
 	}
 }

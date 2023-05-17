@@ -46,6 +46,7 @@ func TestPrintRows(t *testing.T) {
 	}
 
 	graph := New(info)
+	graph.AnalyzeIndirectDeps()
 
 	rows := graph.PrintRows()
 
@@ -83,7 +84,6 @@ func TestAnalyzeDirectDeps(t *testing.T) {
 	}
 
 	graph := New(info)
-	analyzeDirectDeps(graph, info.Packages)
 
 	if graph.nodes[0].Package != testPackage {
 		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
@@ -103,8 +103,7 @@ func TestAnalyzeIndirectDeps(t *testing.T) {
 	}
 
 	graph := New(info)
-	analyzeDirectDeps(graph, info.Packages)
-	analyzeIndirectDeps(graph)
+	graph.AnalyzeIndirectDeps()
 
 	if graph.nodes[0].Package != testPackage {
 		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
@@ -112,5 +111,24 @@ func TestAnalyzeIndirectDeps(t *testing.T) {
 
 	if graph.nodes[0].Indirect[0] != "github.com/junyaU/mimi/testdata/layer/domain/model/creator" {
 		t.Errorf("NewGraph() should return %v, but got %v", "github.com/junyaU/mimi/testdata/layer/domain/model/creator", graph.nodes[0].Indirect[0])
+	}
+}
+
+func TestAnalyzeDependents(t *testing.T) {
+	info, err := pkginfo.New("./../../testdata/layer/domain/model/")
+	if err != nil {
+		t.Errorf("NewInfo() should not return error, but got %v", err)
+	}
+
+	graph := New(info)
+	graph.AnalyzeDependents()
+
+	recipePkg := "github.com/junyaU/mimi/testdata/layer/domain/model/recipe"
+	if graph.nodes[0].Dependents[0] != recipePkg {
+		t.Errorf("NewGraph() should return %v, but got %v", recipePkg, graph.nodes[0].Dependents[0])
+	}
+
+	if graph.nodes[1].Dependents[0] != testPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[1].Dependents[0])
 	}
 }
