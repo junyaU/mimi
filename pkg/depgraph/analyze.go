@@ -10,6 +10,7 @@ type Node struct {
 	Package  string
 	Direct   []string
 	Indirect []string
+	//Dependents []string
 }
 
 type Graph struct {
@@ -28,7 +29,6 @@ func New(pkgOverview *pkginfo.PackageOverview) *Graph {
 	}
 
 	analyzeDirectDeps(graph, pkgOverview.Packages)
-	analyzeIndirectDeps(graph)
 
 	return graph
 }
@@ -58,14 +58,14 @@ func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
 	}
 }
 
-func analyzeIndirectDeps(graph *Graph) {
-	for index := range graph.nodes {
+func (g *Graph) AnalyzeIndirectDeps() {
+	for index := range g.nodes {
 		visited := make(map[string]bool)
 		targetIndirect := make(map[string]bool)
-		findIndirectDeps(&graph.nodes[index], &graph.nodes[index], graph.dependencyMap, targetIndirect, visited)
+		findIndirectDeps(&g.nodes[index], &g.nodes[index], g.dependencyMap, targetIndirect, visited)
 
 		for pkg := range targetIndirect {
-			graph.nodes[index].Indirect = append(graph.nodes[index].Indirect, pkg)
+			g.nodes[index].Indirect = append(g.nodes[index].Indirect, pkg)
 		}
 	}
 }

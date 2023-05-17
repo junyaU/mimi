@@ -33,6 +33,8 @@ var checkCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
+		depsChecker.AnalyzeIndirectDeps()
+
 		if err := checkDepsThresholds(depsChecker.GetNodes(), directThreshold, indirectThreshold); err != nil {
 			cobra.CheckErr(err)
 		}

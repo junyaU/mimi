@@ -46,6 +46,7 @@ func TestPrintRows(t *testing.T) {
 	}
 
 	graph := New(info)
+	graph.AnalyzeIndirectDeps()
 
 	rows := graph.PrintRows()
 
@@ -83,7 +84,6 @@ func TestAnalyzeDirectDeps(t *testing.T) {
 	}
 
 	graph := New(info)
-	analyzeDirectDeps(graph, info.Packages)
 
 	if graph.nodes[0].Package != testPackage {
 		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
@@ -103,8 +103,7 @@ func TestAnalyzeIndirectDeps(t *testing.T) {
 	}
 
 	graph := New(info)
-	analyzeDirectDeps(graph, info.Packages)
-	analyzeIndirectDeps(graph)
+	graph.AnalyzeIndirectDeps()
 
 	if graph.nodes[0].Package != testPackage {
 		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)

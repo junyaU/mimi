@@ -28,6 +28,8 @@ risks in the package dependency structure. Specify the package path as an argume
 			cobra.CheckErr(err)
 		}
 
+		depsChecker.AnalyzeIndirectDeps()
+
 		if err := drawDepsTable(depsChecker.PrintRows(), directThreshold, indirectThreshold); err != nil {
 			cobra.CheckErr(err)
 		}

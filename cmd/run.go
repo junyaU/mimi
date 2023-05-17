@@ -54,10 +54,13 @@ The configuration file should be in YAML format and contain a list of commands t
 func executeCommand(command configparser.Command, checker *depgraph.Graph) error {
 	switch command.Name {
 	case "list":
+		checker.AnalyzeIndirectDeps()
 		return outputDepsList(checker.GetNodes())
 	case "table":
+		checker.AnalyzeIndirectDeps()
 		return drawDepsTable(checker.PrintRows(), command.DirectThreshold, command.IndirectThreshold)
 	case "check":
+		checker.AnalyzeIndirectDeps()
 		return checkDepsThresholds(checker.GetNodes(), command.DirectThreshold, command.IndirectThreshold)
 	default:
 		return fmt.Errorf("invalid command name: %s", command.Name)

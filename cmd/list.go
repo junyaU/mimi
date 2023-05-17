@@ -30,6 +30,8 @@ your project. Specify the package path as an argument.`,
 			cobra.CheckErr(err)
 		}
 
+		depsChecker.AnalyzeIndirectDeps()
+
 		if err := outputDepsList(depsChecker.GetNodes()); err != nil {
 			cobra.CheckErr(err)
 		}
