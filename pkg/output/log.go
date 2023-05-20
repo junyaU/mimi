@@ -6,6 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/junyaU/mimi/pkg/depgraph"
 	"github.com/junyaU/mimi/pkg/utils"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -22,6 +23,8 @@ func NewLogDrawer(nodes []depgraph.Node) (*LogDrawer, error) {
 	if len(nodes) == 0 {
 		return nil, errors.New("no nodes")
 	}
+
+	color.Output = os.Stdout
 
 	return &LogDrawer{
 		nodes: nodes,
