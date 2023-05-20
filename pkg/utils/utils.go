@@ -22,3 +22,13 @@ func Contains(slice []string, target string) bool {
 	}
 	return false
 }
+
+func Max(slice []int) int {
+	max := 0
+	for _, value := range slice {
+		if value > max {
+			max = value
+		}
+	}
+	return max
+}

@@ -22,7 +22,7 @@ func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) (*GraphDrawer, error
 
 	table := tablewriter.NewWriter(os.Stdout)
 
-	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps"})
+	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps", "Depth"})
 
 	table.SetRowLine(true)
 	table.SetCenterSeparator("+")
@@ -43,7 +43,7 @@ func (g *GraphDrawer) DrawTable(rows [][]string) error {
 		return fmt.Errorf("no packages found")
 	}
 
-	if len(rows[0]) != 3 {
+	if len(rows[0]) != 4 {
 		return fmt.Errorf("invalid rows")
 	}
 
