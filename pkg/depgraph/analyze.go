@@ -104,6 +104,10 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 		if currentDepth > maxDepth {
 			maxDepth = currentDepth
 		}
+
+		if visited[importedPkg] {
+			delete(visited, importedPkg)
+		}
 	}
 
 	return

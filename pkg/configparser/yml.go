@@ -26,6 +26,7 @@ type Command struct {
 	Path              string
 	DirectThreshold   int
 	IndirectThreshold int
+	DepthThreshold    int
 }
 
 func (c *ConfigCommand) IsVaild() bool {

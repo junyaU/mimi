@@ -51,18 +51,18 @@ The configuration file should be in YAML format and contain a list of commands t
 	},
 }
 
-func executeCommand(command configparser.Command, checker *depgraph.Graph) error {
-	switch command.Name {
+func executeCommand(c configparser.Command, checker *depgraph.Graph) error {
+	switch c.Name {
 	case "list":
 		return outputDepsList(checker)
 	case "table":
-		return drawDepsTable(checker, command.DirectThreshold, command.IndirectThreshold)
+		return drawDepsTable(checker, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold)
 	case "check":
-		return checkDepsThresholds(checker, command.DirectThreshold, command.IndirectThreshold)
+		return checkDepsThresholds(checker, c.DirectThreshold, c.IndirectThreshold)
 	case "deps":
-		return outputDependents(checker, command.Path)
+		return outputDependents(checker, c.Path)
 	default:
-		return fmt.Errorf("invalid command name: %s", command.Name)
+		return fmt.Errorf("invalid command name: %s", c.Name)
 	}
 }
 

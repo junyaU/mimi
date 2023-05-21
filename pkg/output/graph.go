@@ -12,12 +12,13 @@ type GraphDrawer struct {
 	table           *tablewriter.Table
 	maxDirectDeps   int
 	maxIndirectDeps int
+	maxDepth        int
 	limitColor      func(a ...interface{}) string
 }
 
-func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) (*GraphDrawer, error) {
-	if maxDirectDeps < 0 || maxIndirectDeps < 0 {
-		return nil, fmt.Errorf("invalid max deps")
+func NewGraphDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*GraphDrawer, error) {
+	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 {
+		return nil, fmt.Errorf("invalid maxDirectDeps, maxIndirectDeps or maxDepth")
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
@@ -34,6 +35,7 @@ func NewGraphDrawer(maxDirectDeps int, maxIndirectDeps int) (*GraphDrawer, error
 		table:           table,
 		maxDirectDeps:   maxDirectDeps,
 		maxIndirectDeps: maxIndirectDeps,
+		maxDepth:        maxDepth,
 		limitColor:      color.New(color.FgRed).SprintFunc(),
 	}, nil
 }
@@ -58,6 +60,11 @@ func (g *GraphDrawer) DrawTable(rows [][]string) error {
 			return err
 		}
 
+		depthNum, err := strconv.Atoi(row[3])
+		if err != nil {
+			return err
+		}
+
 		if g.maxDirectDeps > 0 && directDepsNum > g.maxDirectDeps {
 			row[0] = g.limitColor(row[0])
 			row[1] = g.limitColor(row[1])
@@ -66,6 +73,11 @@ func (g *GraphDrawer) DrawTable(rows [][]string) error {
 		if g.maxIndirectDeps > 0 && indirectDepsNum > g.maxIndirectDeps {
 			row[0] = g.limitColor(row[0])
 			row[2] = g.limitColor(row[2])
+		}
+
+		if g.maxDepth > 0 && depthNum > g.maxDepth {
+			row[0] = g.limitColor(row[0])
+			row[3] = g.limitColor(row[3])
 		}
 
 		g.table.Append(row)

@@ -12,6 +12,7 @@ import (
 
 var directThreshold int
 var indirectThreshold int
+var depthThreshold int
 
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
