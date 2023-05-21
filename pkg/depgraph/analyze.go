@@ -11,7 +11,7 @@ type Node struct {
 	Direct     []string
 	Indirect   []string
 	Dependents []string
-	depth      int
+	Depth      int
 }
 
 type Graph struct {
@@ -45,7 +45,7 @@ func (g *Graph) PrintRows() [][]string {
 			node.Package,
 			strconv.Itoa(len(node.Direct)),
 			strconv.Itoa(len(node.Indirect)),
-			strconv.Itoa(node.depth),
+			strconv.Itoa(node.Depth),
 		})
 	}
 	return rows
@@ -72,7 +72,7 @@ func (g *Graph) AnalyzeIndirectDeps() {
 
 		depth := findIndirectDeps(&g.nodes[index], &g.nodes[index], g.dependencyMap, targetIndirect, visited, 0)
 
-		g.nodes[index].depth = depth
+		g.nodes[index].Depth = depth
 
 		for pkg := range targetIndirect {
 			g.nodes[index].Indirect = append(g.nodes[index].Indirect, pkg)

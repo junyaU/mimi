@@ -33,8 +33,8 @@ func TestGraphDrawer_Draw(t *testing.T) {
 	}{
 		{[][]string{}, true},
 		{[][]string{{"a", "1"}}, true},
-		{[][]string{{"a", "1", "2"}, {"b", "3", "4"}}, false},
-		{[][]string{{"a", "1", "2"}, {"b", "z", "4"}}, true},
+		{[][]string{{"a", "1", "2", "1"}, {"b", "3", "4", "2"}}, false},
+		{[][]string{{"a", "1", "2", "1"}, {"b", "z", "4", "3"}}, true},
 	}
 
 	for _, test := range tests {
