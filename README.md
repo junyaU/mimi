@@ -42,11 +42,15 @@ $ export PATH=$PATH:$GOPATH/bin
 Mimi provides several commands to analyze your Go packages.
 
 ### Check Command
-Checks if the direct and indirect dependencies of a given Go package exceed the given thresholds.\
-The direct_threshold parameter specifies the maximum number of direct dependencies allowed, while the indirect_threshold parameter specifies the maximum number of indirect dependencies allowed.
+Checks if the direct and indirect dependencies of a given Go package exceed the given thresholds.
 
+The direct_threshold parameter specifies the maximum number of direct dependencies allowed. Direct dependencies are the packages that the given package directly depends on.
+
+The indirect_threshold parameter specifies the maximum number of indirect dependencies allowed. Indirect dependencies are the packages that the given package depends on through one or more intermediary packages.
+
+The depth parameter specifies the maximum depth of dependencies allowed. Depth is a measure of the farthest distance from the given package to a dependency, with a direct dependency being at a depth of 1, a dependency of a direct dependency being at a depth of 2, and so on.
 ```sh
-$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold>
+$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth>
 ```
 
 ex) Check if the direct dependencies of the `github.com/junyaU/mimi/testdata` package exceed 2.
@@ -61,28 +65,30 @@ Error: exceeded dependency threshold
 exit status 1
 ```
 
+If any of the specified thresholds are exceeded, the check command will return an error.
+
 ### Table Command
 Generates a table showing the direct and indirect dependencies for a given Go package.
 
 ```sh
-$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold>
+$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth>
 ```
 
 ex) Generate a table showing the direct and indirect dependencies of the `github.com/junyaU/mimi/testdata/layer/domain/model` package.
 
 ```sh  
 $ mimi table ./testdata/layer/domain/model
-+--------------------------------------------------------------+-------------+---------------+
-|                           PACKAGE                            | DIRECT DEPS | INDIRECT DEPS |
-+--------------------------------------------------------------+-------------+---------------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/creator   | 0           | 0             |
-+--------------------------------------------------------------+-------------+---------------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/recipe    | 1           | 0             |
-+--------------------------------------------------------------+-------------+---------------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/flow      | 2           | 1             |
-+--------------------------------------------------------------+-------------+---------------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/necessity | 2           | 1             |
-+--------------------------------------------------------------+-------------+---------------+
++--------------------------------------------------------------+-------------+---------------+-------+
+|                           PACKAGE                            | DIRECT DEPS | INDIRECT DEPS | DEPTH |
++--------------------------------------------------------------+-------------+---------------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/creator   | 0           | 0             | 0     |
++--------------------------------------------------------------+-------------+---------------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/recipe    | 1           | 0             | 1     |
++--------------------------------------------------------------+-------------+---------------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/flow      | 2           | 1             | 2     |
++--------------------------------------------------------------+-------------+---------------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/necessity | 2           | 1             | 2     |
++--------------------------------------------------------------+-------------+---------------+-------+
 ```
 
 ### List Command
@@ -177,6 +183,7 @@ commands:
       path: "./"
       directThreshold: 10
       indirectThreshold: 20
+      depthThreshold: 6
   - name: list
     parameters:
       path: "./"

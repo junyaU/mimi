@@ -18,7 +18,8 @@ type ConfigCommand struct {
 type CommandParams struct {
 	Path              string `yaml:"path"`
 	DirectThreshold   int    `yaml:"directThreshold"`
-	InDirectThreshold int    `yaml:"inDirectThreshold"`
+	IndirectThreshold int    `yaml:"indirectThreshold"`
+	DepthThreshold    int    `yaml:"depthThreshold"`
 }
 
 type Command struct {
@@ -26,6 +27,7 @@ type Command struct {
 	Path              string
 	DirectThreshold   int
 	IndirectThreshold int
+	DepthThreshold    int
 }
 
 func (c *ConfigCommand) IsVaild() bool {
@@ -70,7 +72,8 @@ func (c *YmlConfig) GetCommands() ([]Command, error) {
 			Name:              command.Name,
 			Path:              command.Parameters.Path,
 			DirectThreshold:   command.Parameters.DirectThreshold,
-			IndirectThreshold: command.Parameters.InDirectThreshold,
+			IndirectThreshold: command.Parameters.IndirectThreshold,
+			DepthThreshold:    command.Parameters.DepthThreshold,
 		})
 	}
 

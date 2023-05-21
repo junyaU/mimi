@@ -60,7 +60,7 @@ func (l *LogDrawer) Draw() {
 	}
 }
 
-func (l *LogDrawer) ReportExceededDeps(maxDirectDeps int, maxIndirectDeps int) bool {
+func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth int) bool {
 	exceeded := false
 
 	for _, node := range l.nodes {
@@ -70,6 +70,11 @@ func (l *LogDrawer) ReportExceededDeps(maxDirectDeps int, maxIndirectDeps int) b
 		}
 		if maxIndirectDeps > 0 && len(node.Indirect) > maxIndirectDeps {
 			l.fail.Printf("Package %s has %d indirect dependencies\n", node.Package, len(node.Indirect))
+			exceeded = true
+		}
+
+		if maxDepth > 0 && node.Depth > maxDepth {
+			l.fail.Printf("Package %s has %d depth\n", node.Package, node.Depth)
 			exceeded = true
 		}
 	}

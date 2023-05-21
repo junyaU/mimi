@@ -11,7 +11,7 @@ func TestNewLogDrawer(t *testing.T) {
 		wantErr bool
 	}{
 		{[]depgraph.Node{}, true},
-		{[]depgraph.Node{{"dummy", []string{}, []string{}, []string{}}}, false},
+		{[]depgraph.Node{{"dummy", []string{}, []string{}, []string{}, 0}}, false},
 	}
 
 	for _, test := range tests {
@@ -32,19 +32,22 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 		nodes           []depgraph.Node
 		maxDirectDeps   int
 		maxIndirectDeps int
+		maxDepth        int
 		expect          bool
 	}{
 		{[]depgraph.Node{
-			{"a", []string{"a"}, []string{"b"}, []string{"c"}},
+			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2},
 		},
 			1,
 			1,
+			3,
 			false,
 		},
 		{[]depgraph.Node{
-			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}},
+			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2},
 		},
 			2,
+			1,
 			1,
 			true,
 		},
@@ -56,7 +59,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			t.Errorf("NewLogDrawer(%v) should not return error", test.nodes)
 		}
 
-		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps)
+		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth)
 		if fact != test.expect {
 			t.Error("ReportExceededDeps() should return true")
 		}

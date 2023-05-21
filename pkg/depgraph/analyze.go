@@ -11,6 +11,7 @@ type Node struct {
 	Direct     []string
 	Indirect   []string
 	Dependents []string
+	Depth      int
 }
 
 type Graph struct {
@@ -44,6 +45,7 @@ func (g *Graph) PrintRows() [][]string {
 			node.Package,
 			strconv.Itoa(len(node.Direct)),
 			strconv.Itoa(len(node.Indirect)),
+			strconv.Itoa(node.Depth),
 		})
 	}
 	return rows
@@ -67,7 +69,10 @@ func (g *Graph) AnalyzeIndirectDeps() {
 	for index := range g.nodes {
 		visited := make(map[string]bool)
 		targetIndirect := make(map[string]bool)
-		findIndirectDeps(&g.nodes[index], &g.nodes[index], g.dependencyMap, targetIndirect, visited)
+
+		depth := findIndirectDeps(&g.nodes[index], &g.nodes[index], g.dependencyMap, targetIndirect, visited, 0)
+
+		g.nodes[index].Depth = depth
 
 		for pkg := range targetIndirect {
 			g.nodes[index].Indirect = append(g.nodes[index].Indirect, pkg)
@@ -75,7 +80,10 @@ func (g *Graph) AnalyzeIndirectDeps() {
 	}
 }
 
-func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo.Package, targetIndirect map[string]bool, visited map[string]bool) {
+// Depth-First Search
+func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo.Package, targetIndirect map[string]bool, visited map[string]bool, depth int) (maxDepth int) {
+	maxDepth = depth
+
 	for _, importedPkg := range node.Direct {
 		if visited[importedPkg] {
 			continue
@@ -92,8 +100,17 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 			targetIndirect[deps.Name] = true
 		}
 
-		findIndirectDeps(target, &Node{Package: deps.Name, Direct: deps.Imports}, dependencyMap, targetIndirect, visited)
+		currentDepth := findIndirectDeps(target, &Node{Package: deps.Name, Direct: deps.Imports}, dependencyMap, targetIndirect, visited, depth+1)
+		if currentDepth > maxDepth {
+			maxDepth = currentDepth
+		}
+
+		if visited[importedPkg] {
+			delete(visited, importedPkg)
+		}
 	}
+
+	return
 }
 
 func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {

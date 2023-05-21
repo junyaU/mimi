@@ -50,8 +50,8 @@ func TestPrintRows(t *testing.T) {
 
 	rows := graph.PrintRows()
 
-	if len(rows[0]) != 3 {
-		t.Errorf("PrintRows() should return %v, but got %v", 3, len(rows))
+	if len(rows[0]) != 4 {
+		t.Errorf("PrintRows() should return %v, but got %v", 4, len(rows))
 	}
 
 	if rows[0][0] != testPackage {

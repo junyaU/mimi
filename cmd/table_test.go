@@ -12,11 +12,11 @@ func TestTable(t *testing.T) {
 	os.Args = append(os.Args, "table", "./../testdata/layer/domain/model/creator")
 
 	output := GetCmdOutput(t, Execute)
-	want := "+------------------------------------------------------------+-------------+---------------+\n" +
-		"|                          PACKAGE                           | DIRECT DEPS | INDIRECT DEPS |\n" +
-		"+------------------------------------------------------------+-------------+---------------+\n" +
-		"| github.com/junyaU/mimi/testdata/layer/domain/model/creator | 0           | 0             |\n" +
-		"+------------------------------------------------------------+-------------+---------------+"
+	want := "+------------------------------------------------------------+-------------+---------------+-------+\n" +
+		"|                          PACKAGE                           | DIRECT DEPS | INDIRECT DEPS | DEPTH |\n" +
+		"+------------------------------------------------------------+-------------+---------------+-------+\n" +
+		"| github.com/junyaU/mimi/testdata/layer/domain/model/creator | 0           | 0             | 0     |\n" +
+		"+------------------------------------------------------------+-------------+---------------+-------+"
 
 	if output != want {
 		t.Errorf("Expected output to be '%s', got '%s'", want, output)
