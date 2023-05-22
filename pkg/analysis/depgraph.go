@@ -1,4 +1,4 @@
-package depgraph
+package analysis
 
 import (
 	"github.com/junyaU/mimi/pkg/pkginfo"

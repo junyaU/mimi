@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/configparser"
-	"github.com/junyaU/mimi/pkg/depgraph"
 	"github.com/spf13/cobra"
 )
 
@@ -51,7 +51,7 @@ The configuration file should be in YAML format and contain a list of commands t
 	},
 }
 
-func executeCommand(c configparser.Command, checker *depgraph.Graph) error {
+func executeCommand(c configparser.Command, checker *analysis.Graph) error {
 	switch c.Name {
 	case "list":
 		return outputDepsList(checker)

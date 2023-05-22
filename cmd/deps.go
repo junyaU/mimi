@@ -4,7 +4,7 @@ Copyright © 2023 junyaU <junyaadgj@gmail.com>
 package cmd
 
 import (
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -43,7 +43,7 @@ func init() {
 	rootCmd.AddCommand(depsCmd)
 }
 
-func outputDependents(depsChecker *depgraph.Graph, path string) error {
+func outputDependents(depsChecker *analysis.Graph, path string) error {
 	depsChecker.AnalyzeDependents()
 
 	drawer, err := output.NewLogDrawer(depsChecker.GetNodes())

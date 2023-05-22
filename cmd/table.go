@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -43,7 +43,7 @@ func init() {
 	tableCmd.Flags().IntVarP(&depthThreshold, "depth", "z", 0, "Threshold for depth of dependency graph")
 }
 
-func drawDepsTable(checker *depgraph.Graph, direct, indirect, depth int) error {
+func drawDepsTable(checker *analysis.Graph, direct, indirect, depth int) error {
 	checker.AnalyzeIndirectDeps()
 
 	drawer, err := output.NewGraphDrawer(direct, indirect, depth)

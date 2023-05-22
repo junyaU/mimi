@@ -1,17 +1,17 @@
 package output
 
 import (
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"testing"
 )
 
 func TestNewLogDrawer(t *testing.T) {
 	tests := []struct {
-		nodes   []depgraph.Node
+		nodes   []analysis.Node
 		wantErr bool
 	}{
-		{[]depgraph.Node{}, true},
-		{[]depgraph.Node{{"dummy", []string{}, []string{}, []string{}, 0}}, false},
+		{[]analysis.Node{}, true},
+		{[]analysis.Node{{"dummy", []string{}, []string{}, []string{}, 0}}, false},
 	}
 
 	for _, test := range tests {
@@ -29,13 +29,13 @@ func TestNewLogDrawer(t *testing.T) {
 
 func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 	tests := []struct {
-		nodes           []depgraph.Node
+		nodes           []analysis.Node
 		maxDirectDeps   int
 		maxIndirectDeps int
 		maxDepth        int
 		expect          bool
 	}{
-		{[]depgraph.Node{
+		{[]analysis.Node{
 			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2},
 		},
 			1,
@@ -43,7 +43,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			3,
 			false,
 		},
-		{[]depgraph.Node{
+		{[]analysis.Node{
 			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2},
 		},
 			2,

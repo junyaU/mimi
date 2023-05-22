@@ -23,7 +23,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/pkginfo"
 	"os"
 
@@ -63,11 +63,11 @@ func checkArgsNotEmpty(args []string) error {
 	return nil
 }
 
-func newDepsChecker(path string) (*depgraph.Graph, error) {
+func newDepsChecker(path string) (*analysis.Graph, error) {
 	info, err := pkginfo.New(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get package info: %w", err)
 	}
 
-	return depgraph.New(info), nil
+	return analysis.New(info), nil
 }

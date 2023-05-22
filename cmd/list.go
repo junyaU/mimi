@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +40,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 }
 
-func outputDepsList(checker *depgraph.Graph) error {
+func outputDepsList(checker *analysis.Graph) error {
 	checker.AnalyzeIndirectDeps()
 
 	drawer, err := output.NewLogDrawer(checker.GetNodes())

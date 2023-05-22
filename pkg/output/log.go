@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/utils"
 	"os"
 	"path/filepath"
@@ -12,14 +12,14 @@ import (
 )
 
 type LogDrawer struct {
-	nodes []depgraph.Node
+	nodes []analysis.Node
 	pkg   *color.Color
 	head  *color.Color
 	base  *color.Color
 	fail  *color.Color
 }
 
-func NewLogDrawer(nodes []depgraph.Node) (*LogDrawer, error) {
+func NewLogDrawer(nodes []analysis.Node) (*LogDrawer, error) {
 	if len(nodes) == 0 {
 		return nil, errors.New("no nodes")
 	}
