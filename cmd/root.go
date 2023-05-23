@@ -69,5 +69,16 @@ func newDepsChecker(path string) (*analysis.Graph, error) {
 		return nil, fmt.Errorf("failed to get package info: %w", err)
 	}
 
-	return analysis.New(info), nil
+	projectPkg, err := analysis.NewProjectPackages(info.Packages)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get project packages: %w", err)
+	}
+
+	graph := analysis.NewGraph(info)
+
+	if err := graph.AnalyzePackageLines(projectPkg); err != nil {
+		return nil, fmt.Errorf("failed to analyze package lines: %w", err)
+	}
+
+	return graph, nil
 }

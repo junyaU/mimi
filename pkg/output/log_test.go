@@ -11,7 +11,7 @@ func TestNewLogDrawer(t *testing.T) {
 		wantErr bool
 	}{
 		{[]analysis.Node{}, true},
-		{[]analysis.Node{{"dummy", []string{}, []string{}, []string{}, 0}}, false},
+		{[]analysis.Node{{"dummy", []string{}, []string{}, []string{}, 0, 10}}, false},
 	}
 
 	for _, test := range tests {
@@ -36,7 +36,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 		expect          bool
 	}{
 		{[]analysis.Node{
-			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2},
+			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2, 10},
 		},
 			1,
 			1,
@@ -44,7 +44,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			false,
 		},
 		{[]analysis.Node{
-			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2},
+			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2, 10},
 		},
 			2,
 			1,

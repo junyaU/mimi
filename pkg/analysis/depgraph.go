@@ -12,6 +12,7 @@ type Node struct {
 	Indirect   []string
 	Dependents []string
 	Depth      int
+	Lines      int
 }
 
 type Graph struct {
@@ -19,7 +20,7 @@ type Graph struct {
 	dependencyMap map[string]pkginfo.Package
 }
 
-func New(pkgOverview *pkginfo.PackageOverview) *Graph {
+func NewGraph(pkgOverview *pkginfo.PackageOverview) *Graph {
 	dependencyMap := make(map[string]pkginfo.Package)
 	for _, dependency := range pkgOverview.Dependencies {
 		dependencyMap[dependency.Name] = dependency
@@ -46,6 +47,7 @@ func (g *Graph) PrintRows() [][]string {
 			strconv.Itoa(len(node.Direct)),
 			strconv.Itoa(len(node.Indirect)),
 			strconv.Itoa(node.Depth),
+			strconv.Itoa(node.Lines),
 		})
 	}
 	return rows
@@ -78,6 +80,19 @@ func (g *Graph) AnalyzeIndirectDeps() {
 			g.nodes[index].Indirect = append(g.nodes[index].Indirect, pkg)
 		}
 	}
+}
+
+func (g *Graph) AnalyzePackageLines(projectpkgs ProjectPackages) error {
+	for index := range g.nodes {
+		pkg, err := projectpkgs.GetPackage(g.nodes[index].Package)
+		if err != nil {
+			return err
+		}
+
+		g.nodes[index].Lines = pkg.GetLines()
+	}
+
+	return nil
 }
 
 // Depth-First Search

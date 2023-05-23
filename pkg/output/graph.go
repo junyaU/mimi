@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-type GraphDrawer struct {
+type TableDrawer struct {
 	table           *tablewriter.Table
 	maxDirectDeps   int
 	maxIndirectDeps int
@@ -16,14 +16,14 @@ type GraphDrawer struct {
 	limitColor      func(a ...interface{}) string
 }
 
-func NewGraphDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*GraphDrawer, error) {
+func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*TableDrawer, error) {
 	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 {
 		return nil, fmt.Errorf("invalid maxDirectDeps, maxIndirectDeps or maxDepth")
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 
-	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps", "Depth"})
+	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps", "Depth", "Lines"})
 
 	table.SetRowLine(true)
 	table.SetCenterSeparator("+")
@@ -31,7 +31,7 @@ func NewGraphDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*GraphDrawer,
 	table.SetRowSeparator("-")
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
 
-	return &GraphDrawer{
+	return &TableDrawer{
 		table:           table,
 		maxDirectDeps:   maxDirectDeps,
 		maxIndirectDeps: maxIndirectDeps,
@@ -40,12 +40,12 @@ func NewGraphDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*GraphDrawer,
 	}, nil
 }
 
-func (g *GraphDrawer) DrawTable(rows [][]string) error {
+func (g *TableDrawer) DrawTable(rows [][]string) error {
 	if len(rows) == 0 {
 		return fmt.Errorf("no packages found")
 	}
 
-	if len(rows[0]) != 4 {
+	if len(rows[0]) != 5 {
 		return fmt.Errorf("invalid rows")
 	}
 

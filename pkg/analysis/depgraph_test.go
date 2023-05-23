@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	testPackage = "github.com/junyaU/mimi/testdata/layer/domain/model/flow"
+	flowPackage = "github.com/junyaU/mimi/testdata/layer/domain/model/flow"
 	testPath    = "./../../testdata/layer/domain/model/flow"
 )
 
@@ -18,10 +18,10 @@ func TestNewGraph(t *testing.T) {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
-	graph := New(info)
+	graph := NewGraph(info)
 
-	if graph.nodes[0].Package != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
+	if graph.nodes[0].Package != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[0].Package)
 	}
 
 	directDeps := []string{"github.com/junyaU/mimi/testdata/layer/domain", "github.com/junyaU/mimi/testdata/layer/domain/model/recipe"}
@@ -45,17 +45,17 @@ func TestPrintRows(t *testing.T) {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
-	graph := New(info)
+	graph := NewGraph(info)
 	graph.AnalyzeIndirectDeps()
 
 	rows := graph.PrintRows()
 
-	if len(rows[0]) != 4 {
+	if len(rows[0]) != 5 {
 		t.Errorf("PrintRows() should return %v, but got %v", 4, len(rows))
 	}
 
-	if rows[0][0] != testPackage {
-		t.Errorf("PrintRows() should return %v, but got %v", testPackage, rows[0][0])
+	if rows[0][0] != flowPackage {
+		t.Errorf("PrintRows() should return %v, but got %v", flowPackage, rows[0][0])
 	}
 
 	directDepsNum, err := strconv.Atoi(rows[0][1])
@@ -83,10 +83,10 @@ func TestAnalyzeDirectDeps(t *testing.T) {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
-	graph := New(info)
+	graph := NewGraph(info)
 
-	if graph.nodes[0].Package != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
+	if graph.nodes[0].Package != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[0].Package)
 	}
 
 	for _, dep := range graph.nodes[0].Direct {
@@ -102,11 +102,11 @@ func TestAnalyzeIndirectDeps(t *testing.T) {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
-	graph := New(info)
+	graph := NewGraph(info)
 	graph.AnalyzeIndirectDeps()
 
-	if graph.nodes[0].Package != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
+	if graph.nodes[0].Package != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[0].Package)
 	}
 
 	if graph.nodes[0].Indirect[0] != "github.com/junyaU/mimi/testdata/layer/domain/model/creator" {
@@ -120,7 +120,7 @@ func TestAnalyzeDependents(t *testing.T) {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
-	graph := New(info)
+	graph := NewGraph(info)
 	graph.AnalyzeDependents()
 
 	recipePkg := "github.com/junyaU/mimi/testdata/layer/domain/model/recipe"
@@ -128,7 +128,7 @@ func TestAnalyzeDependents(t *testing.T) {
 		t.Errorf("NewGraph() should return %v, but got %v", recipePkg, graph.nodes[0].Dependents[0])
 	}
 
-	if graph.nodes[1].Dependents[0] != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[1].Dependents[0])
+	if graph.nodes[1].Dependents[0] != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[1].Dependents[0])
 	}
 }

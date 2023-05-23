@@ -11,6 +11,7 @@ import (
 
 type Package struct {
 	Name    string
+	Files   []string
 	Imports []string
 }
 
@@ -22,7 +23,7 @@ type PackageOverview struct {
 
 var (
 	loadConfig = &packages.Config{
-		Mode: packages.NeedImports | packages.NeedDeps | packages.NeedName,
+		Mode: packages.NeedImports | packages.NeedDeps | packages.NeedName | packages.NeedFiles,
 	}
 )
 
@@ -113,6 +114,7 @@ func loadPackages(pkgOverview *PackageOverview, pkgPaths []string) error {
 
 		pkgOverview.Packages = append(pkgOverview.Packages, Package{
 			Name:    pkg.ID,
+			Files:   pkg.GoFiles,
 			Imports: imports,
 		})
 	}

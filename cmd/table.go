@@ -46,7 +46,7 @@ func init() {
 func drawDepsTable(checker *analysis.Graph, direct, indirect, depth int) error {
 	checker.AnalyzeIndirectDeps()
 
-	drawer, err := output.NewGraphDrawer(direct, indirect, depth)
+	drawer, err := output.NewTableDrawer(direct, indirect, depth)
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}
