@@ -13,6 +13,7 @@ import (
 var directThreshold int
 var indirectThreshold int
 var depthThreshold int
+var linesThreshold int
 
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
@@ -34,7 +35,7 @@ var checkCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		if err := checkDepsThresholds(depsChecker, directThreshold, indirectThreshold, depthThreshold); err != nil {
+		if err := checkDepsThresholds(depsChecker, directThreshold, indirectThreshold, depthThreshold, linesThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -46,9 +47,10 @@ func init() {
 	checkCmd.Flags().IntVarP(&directThreshold, "direct", "d", 0, "Threshold for direct dependencies")
 	checkCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
 	checkCmd.Flags().IntVarP(&depthThreshold, "depth", "z", 0, "Threshold for depth of dependency graph")
+	checkCmd.Flags().IntVarP(&linesThreshold, "lines", "l", 0, "Threshold for lines of code")
 }
 
-func checkDepsThresholds(checker *analysis.Graph, direct, indirect, depth int) error {
+func checkDepsThresholds(checker *analysis.Graph, direct, indirect, depth, lines int) error {
 	checker.AnalyzeIndirectDeps()
 
 	drawer, err := output.NewLogDrawer(checker.GetNodes())
@@ -56,7 +58,7 @@ func checkDepsThresholds(checker *analysis.Graph, direct, indirect, depth int) e
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}
 
-	if (direct > 0 || indirect > 0 || depth > 0) && drawer.ReportExceededDeps(direct, indirect, depth) {
+	if (direct > 0 || indirect > 0 || depth > 0 || lines > 0) && drawer.ReportExceededDeps(direct, indirect, depth, lines) {
 		return fmt.Errorf("exceeded dependency threshold")
 	}
 

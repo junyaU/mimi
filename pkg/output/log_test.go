@@ -33,6 +33,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 		maxDirectDeps   int
 		maxIndirectDeps int
 		maxDepth        int
+		maxLines        int
 		expect          bool
 	}{
 		{[]analysis.Node{
@@ -41,6 +42,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			1,
 			1,
 			3,
+			100,
 			false,
 		},
 		{[]analysis.Node{
@@ -49,6 +51,15 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			2,
 			1,
 			1,
+			100,
+			true,
+		}, {[]analysis.Node{
+			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2, 10},
+		},
+			6,
+			1,
+			1,
+			5,
 			true,
 		},
 	}
@@ -59,7 +70,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			t.Errorf("NewLogDrawer(%v) should not return error", test.nodes)
 		}
 
-		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth)
+		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth, test.maxLines)
 		if fact != test.expect {
 			t.Error("ReportExceededDeps() should return true")
 		}

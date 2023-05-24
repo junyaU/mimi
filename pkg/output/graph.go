@@ -13,11 +13,12 @@ type TableDrawer struct {
 	maxDirectDeps   int
 	maxIndirectDeps int
 	maxDepth        int
+	maxLines        int
 	limitColor      func(a ...interface{}) string
 }
 
-func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*TableDrawer, error) {
-	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 {
+func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) (*TableDrawer, error) {
+	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 || maxLines < 0 {
 		return nil, fmt.Errorf("invalid maxDirectDeps, maxIndirectDeps or maxDepth")
 	}
 
@@ -36,6 +37,7 @@ func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth int) (*TableDrawer,
 		maxDirectDeps:   maxDirectDeps,
 		maxIndirectDeps: maxIndirectDeps,
 		maxDepth:        maxDepth,
+		maxLines:        maxLines,
 		limitColor:      color.New(color.FgRed).SprintFunc(),
 	}, nil
 }
@@ -65,6 +67,11 @@ func (g *TableDrawer) DrawTable(rows [][]string) error {
 			return err
 		}
 
+		linesNum, err := strconv.Atoi(row[4])
+		if err != nil {
+			return err
+		}
+
 		if g.maxDirectDeps > 0 && directDepsNum > g.maxDirectDeps {
 			row[0] = g.limitColor(row[0])
 			row[1] = g.limitColor(row[1])
@@ -78,6 +85,11 @@ func (g *TableDrawer) DrawTable(rows [][]string) error {
 		if g.maxDepth > 0 && depthNum > g.maxDepth {
 			row[0] = g.limitColor(row[0])
 			row[3] = g.limitColor(row[3])
+		}
+
+		if g.maxLines > 0 && linesNum > g.maxLines {
+			row[0] = g.limitColor(row[0])
+			row[4] = g.limitColor(row[4])
 		}
 
 		g.table.Append(row)

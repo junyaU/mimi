@@ -29,7 +29,7 @@ risks in the package dependency structure. Specify the package path as an argume
 			cobra.CheckErr(err)
 		}
 
-		if err := drawDepsTable(depsChecker, directThreshold, indirectThreshold, depthThreshold); err != nil {
+		if err := drawDepsTable(depsChecker, directThreshold, indirectThreshold, depthThreshold, linesThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -41,12 +41,13 @@ func init() {
 	tableCmd.Flags().IntVarP(&directThreshold, "direct", "d", 0, "Threshold for direct dependencies")
 	tableCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
 	tableCmd.Flags().IntVarP(&depthThreshold, "depth", "z", 0, "Threshold for depth of dependency graph")
+	tableCmd.Flags().IntVarP(&linesThreshold, "lines", "l", 0, "Threshold for lines of code")
 }
 
-func drawDepsTable(checker *analysis.Graph, direct, indirect, depth int) error {
+func drawDepsTable(checker *analysis.Graph, direct, indirect, depth, lines int) error {
 	checker.AnalyzeIndirectDeps()
 
-	drawer, err := output.NewTableDrawer(direct, indirect, depth)
+	drawer, err := output.NewTableDrawer(direct, indirect, depth, lines)
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}

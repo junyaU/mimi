@@ -60,7 +60,7 @@ func (l *LogDrawer) Draw() {
 	}
 }
 
-func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth int) bool {
+func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) bool {
 	exceeded := false
 
 	for _, node := range l.nodes {
@@ -75,6 +75,11 @@ func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth 
 
 		if maxDepth > 0 && node.Depth > maxDepth {
 			l.fail.Printf("Package %s has %d depth\n", node.Package, node.Depth)
+			exceeded = true
+		}
+
+		if maxLines > 0 && node.Lines > maxLines {
+			l.fail.Printf("Package %s has %d lines\n", node.Package, node.Lines)
 			exceeded = true
 		}
 	}

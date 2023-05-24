@@ -11,12 +11,14 @@ commands:
       directThreshold: 5
       indirectThreshold: 2
       depthThreshold: 2
+      linesThreshold: 1000
   - name: table
     parameters:
       path: ./testdata/layer/domain/model
       directThreshold: 3
       indirectThreshold: 5
       depthThreshold: 2
+      linesThreshold: 1000
   - name: list
     parameters:
       path: ./testdata/layer/domain/model/flow
