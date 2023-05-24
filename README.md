@@ -49,8 +49,12 @@ The direct_threshold parameter specifies the maximum number of direct dependenci
 The indirect_threshold parameter specifies the maximum number of indirect dependencies allowed. Indirect dependencies are the packages that the given package depends on through one or more intermediary packages.
 
 The depth parameter specifies the maximum depth of dependencies allowed. Depth is a measure of the farthest distance from the given package to a dependency, with a direct dependency being at a depth of 1, a dependency of a direct dependency being at a depth of 2, and so on.
+
+The lines parameter specifies the maximum number of lines of code allowed in a single Go package. It's a way to keep your Go packages concise and maintainable. If a package's code exceeds this limit, it may indicate that the package is doing too much and may need to be broken down into smaller, more focused packages.
+
+
 ```sh
-$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth>
+$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines>
 ```
 
 ex) Check if the direct dependencies of the `github.com/junyaU/mimi/testdata` package exceed 2.
@@ -71,24 +75,24 @@ If any of the specified thresholds are exceeded, the check command will return a
 Generates a table showing the direct and indirect dependencies for a given Go package.
 
 ```sh
-$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth>
+$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines>
 ```
 
 ex) Generate a table showing the direct and indirect dependencies of the `github.com/junyaU/mimi/testdata/layer/domain/model` package.
 
 ```sh  
 $ mimi table ./testdata/layer/domain/model
-+--------------------------------------------------------------+-------------+---------------+-------+
-|                           PACKAGE                            | DIRECT DEPS | INDIRECT DEPS | DEPTH |
-+--------------------------------------------------------------+-------------+---------------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/creator   | 0           | 0             | 0     |
-+--------------------------------------------------------------+-------------+---------------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/recipe    | 1           | 0             | 1     |
-+--------------------------------------------------------------+-------------+---------------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/flow      | 2           | 1             | 2     |
-+--------------------------------------------------------------+-------------+---------------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/necessity | 2           | 1             | 2     |
-+--------------------------------------------------------------+-------------+---------------+-------+
++--------------------------------------------------------------+-------------+---------------+-------+-------+
+|                           PACKAGE                            | DIRECT DEPS | INDIRECT DEPS | DEPTH | LINES |
++--------------------------------------------------------------+-------------+---------------+-------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/creator   | 0           | 0             | 0     | 33    |
++--------------------------------------------------------------+-------------+---------------+-------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/recipe    | 1           | 0             | 1     | 339   |
++--------------------------------------------------------------+-------------+---------------+-------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/flow      | 2           | 1             | 2     | 417   |
++--------------------------------------------------------------+-------------+---------------+-------+-------+
+| github.com/junyaU/mimi/testdata/layer/domain/model/necessity | 2           | 1             | 2     | 254   |
++--------------------------------------------------------------+-------------+---------------+-------+-------+
 ```
 
 ### List Command
@@ -184,6 +188,7 @@ commands:
       directThreshold: 10
       indirectThreshold: 20
       depthThreshold: 6
+      linesThreshold: 1000
   - name: list
     parameters:
       path: "./"

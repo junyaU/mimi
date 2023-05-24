@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -24,12 +24,12 @@ risks in the package dependency structure. Specify the package path as an argume
 			cobra.CheckErr(err)
 		}
 
-		depsChecker, err := newDepsChecker(args[0])
+		graph, err := buildDepGraph(args[0])
 		if err != nil {
 			cobra.CheckErr(err)
 		}
 
-		if err := drawDepsTable(depsChecker, directThreshold, indirectThreshold, depthThreshold); err != nil {
+		if err := drawDepsTable(graph, directThreshold, indirectThreshold, depthThreshold, linesThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -41,17 +41,18 @@ func init() {
 	tableCmd.Flags().IntVarP(&directThreshold, "direct", "d", 0, "Threshold for direct dependencies")
 	tableCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
 	tableCmd.Flags().IntVarP(&depthThreshold, "depth", "z", 0, "Threshold for depth of dependency graph")
+	tableCmd.Flags().IntVarP(&linesThreshold, "lines", "l", 0, "Threshold for lines of code")
 }
 
-func drawDepsTable(checker *depgraph.Graph, direct, indirect, depth int) error {
-	checker.AnalyzeIndirectDeps()
+func drawDepsTable(graph *analysis.DepGraph, direct, indirect, depth, lines int) error {
+	graph.AnalyzeIndirectDeps()
 
-	drawer, err := output.NewGraphDrawer(direct, indirect, depth)
+	drawer, err := output.NewTableDrawer(direct, indirect, depth, lines)
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}
 
-	if err := drawer.DrawTable(checker.PrintRows()); err != nil {
+	if err := drawer.DrawTable(graph.PrintRows()); err != nil {
 		return fmt.Errorf("failed to draw table: %w", err)
 	}
 

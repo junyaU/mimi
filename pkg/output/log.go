@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/utils"
 	"os"
 	"path/filepath"
@@ -12,14 +12,14 @@ import (
 )
 
 type LogDrawer struct {
-	nodes []depgraph.Node
+	nodes []analysis.Node
 	pkg   *color.Color
 	head  *color.Color
 	base  *color.Color
 	fail  *color.Color
 }
 
-func NewLogDrawer(nodes []depgraph.Node) (*LogDrawer, error) {
+func NewLogDrawer(nodes []analysis.Node) (*LogDrawer, error) {
 	if len(nodes) == 0 {
 		return nil, errors.New("no nodes")
 	}
@@ -60,7 +60,7 @@ func (l *LogDrawer) Draw() {
 	}
 }
 
-func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth int) bool {
+func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) bool {
 	exceeded := false
 
 	for _, node := range l.nodes {
@@ -75,6 +75,11 @@ func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth 
 
 		if maxDepth > 0 && node.Depth > maxDepth {
 			l.fail.Printf("Package %s has %d depth\n", node.Package, node.Depth)
+			exceeded = true
+		}
+
+		if maxLines > 0 && node.Lines > maxLines {
+			l.fail.Printf("Package %s has %d lines\n", node.Package, node.Lines)
 			exceeded = true
 		}
 	}

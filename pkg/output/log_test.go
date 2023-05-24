@@ -1,17 +1,17 @@
 package output
 
 import (
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"testing"
 )
 
 func TestNewLogDrawer(t *testing.T) {
 	tests := []struct {
-		nodes   []depgraph.Node
+		nodes   []analysis.Node
 		wantErr bool
 	}{
-		{[]depgraph.Node{}, true},
-		{[]depgraph.Node{{"dummy", []string{}, []string{}, []string{}, 0}}, false},
+		{[]analysis.Node{}, true},
+		{[]analysis.Node{{"dummy", []string{}, []string{}, []string{}, 0, 10}}, false},
 	}
 
 	for _, test := range tests {
@@ -29,26 +29,37 @@ func TestNewLogDrawer(t *testing.T) {
 
 func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 	tests := []struct {
-		nodes           []depgraph.Node
+		nodes           []analysis.Node
 		maxDirectDeps   int
 		maxIndirectDeps int
 		maxDepth        int
+		maxLines        int
 		expect          bool
 	}{
-		{[]depgraph.Node{
-			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2},
+		{[]analysis.Node{
+			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2, 10},
 		},
 			1,
 			1,
 			3,
+			100,
 			false,
 		},
-		{[]depgraph.Node{
-			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2},
+		{[]analysis.Node{
+			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2, 10},
 		},
 			2,
 			1,
 			1,
+			100,
+			true,
+		}, {[]analysis.Node{
+			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2, 10},
+		},
+			6,
+			1,
+			1,
+			5,
 			true,
 		},
 	}
@@ -59,7 +70,7 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			t.Errorf("NewLogDrawer(%v) should not return error", test.nodes)
 		}
 
-		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth)
+		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth, test.maxLines)
 		if fact != test.expect {
 			t.Error("ReportExceededDeps() should return true")
 		}

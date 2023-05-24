@@ -20,6 +20,7 @@ type CommandParams struct {
 	DirectThreshold   int    `yaml:"directThreshold"`
 	IndirectThreshold int    `yaml:"indirectThreshold"`
 	DepthThreshold    int    `yaml:"depthThreshold"`
+	LinesThreshold    int    `yaml:"linesThreshold"`
 }
 
 type Command struct {
@@ -28,9 +29,10 @@ type Command struct {
 	DirectThreshold   int
 	IndirectThreshold int
 	DepthThreshold    int
+	LinesThreshold    int
 }
 
-func (c *ConfigCommand) IsVaild() bool {
+func (c *ConfigCommand) IsValid() bool {
 	switch c.Name {
 	case "check", "list", "table", "deps":
 	default:
@@ -64,7 +66,7 @@ func NewYmlConfig(path string) (*YmlConfig, error) {
 func (c *YmlConfig) GetCommands() ([]Command, error) {
 	var commands []Command
 	for _, command := range c.Commands {
-		if !command.IsVaild() {
+		if !command.IsValid() {
 			return nil, fmt.Errorf("invalid command: %v", command.Name)
 		}
 
@@ -74,6 +76,7 @@ func (c *YmlConfig) GetCommands() ([]Command, error) {
 			DirectThreshold:   command.Parameters.DirectThreshold,
 			IndirectThreshold: command.Parameters.IndirectThreshold,
 			DepthThreshold:    command.Parameters.DepthThreshold,
+			LinesThreshold:    command.Parameters.LinesThreshold,
 		})
 	}
 

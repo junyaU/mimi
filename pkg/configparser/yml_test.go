@@ -47,7 +47,7 @@ func TestYmlConfig_GetCommands(t *testing.T) {
 	}
 }
 
-func TestConfigCommand_IsVaild(t *testing.T) {
+func TestConfigCommand_IsValid(t *testing.T) {
 	tests := []struct {
 		command ConfigCommand
 		want    bool
@@ -60,7 +60,7 @@ func TestConfigCommand_IsVaild(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if test.command.IsVaild() != test.want {
+		if test.command.IsValid() != test.want {
 			t.Errorf("IsVaild() should return %v", test.want)
 		}
 	}

@@ -1,4 +1,4 @@
-package depgraph
+package analysis
 
 import (
 	"github.com/junyaU/mimi/pkg/pkginfo"
@@ -8,20 +8,15 @@ import (
 )
 
 const (
-	testPackage = "github.com/junyaU/mimi/testdata/layer/domain/model/flow"
+	flowPackage = "github.com/junyaU/mimi/testdata/layer/domain/model/flow"
 	testPath    = "./../../testdata/layer/domain/model/flow"
 )
 
 func TestNewGraph(t *testing.T) {
-	info, err := pkginfo.New(testPath)
-	if err != nil {
-		t.Errorf("NewInfo() should not return error, but got %v", err)
-	}
+	graph := BuildDepGraph(t, testPath)
 
-	graph := New(info)
-
-	if graph.nodes[0].Package != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
+	if graph.nodes[0].Package != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[0].Package)
 	}
 
 	directDeps := []string{"github.com/junyaU/mimi/testdata/layer/domain", "github.com/junyaU/mimi/testdata/layer/domain/model/recipe"}
@@ -40,22 +35,17 @@ func TestNewGraph(t *testing.T) {
 }
 
 func TestPrintRows(t *testing.T) {
-	info, err := pkginfo.New(testPath)
-	if err != nil {
-		t.Errorf("NewInfo() should not return error, but got %v", err)
-	}
-
-	graph := New(info)
+	graph := BuildDepGraph(t, testPath)
 	graph.AnalyzeIndirectDeps()
 
 	rows := graph.PrintRows()
 
-	if len(rows[0]) != 4 {
+	if len(rows[0]) != 5 {
 		t.Errorf("PrintRows() should return %v, but got %v", 4, len(rows))
 	}
 
-	if rows[0][0] != testPackage {
-		t.Errorf("PrintRows() should return %v, but got %v", testPackage, rows[0][0])
+	if rows[0][0] != flowPackage {
+		t.Errorf("PrintRows() should return %v, but got %v", flowPackage, rows[0][0])
 	}
 
 	directDepsNum, err := strconv.Atoi(rows[0][1])
@@ -83,10 +73,10 @@ func TestAnalyzeDirectDeps(t *testing.T) {
 		t.Errorf("NewInfo() should not return error, but got %v", err)
 	}
 
-	graph := New(info)
+	graph := BuildDepGraph(t, testPath)
 
-	if graph.nodes[0].Package != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
+	if graph.nodes[0].Package != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[0].Package)
 	}
 
 	for _, dep := range graph.nodes[0].Direct {
@@ -97,16 +87,11 @@ func TestAnalyzeDirectDeps(t *testing.T) {
 }
 
 func TestAnalyzeIndirectDeps(t *testing.T) {
-	info, err := pkginfo.New(testPath)
-	if err != nil {
-		t.Errorf("NewInfo() should not return error, but got %v", err)
-	}
-
-	graph := New(info)
+	graph := BuildDepGraph(t, testPath)
 	graph.AnalyzeIndirectDeps()
 
-	if graph.nodes[0].Package != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[0].Package)
+	if graph.nodes[0].Package != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[0].Package)
 	}
 
 	if graph.nodes[0].Indirect[0] != "github.com/junyaU/mimi/testdata/layer/domain/model/creator" {
@@ -115,12 +100,7 @@ func TestAnalyzeIndirectDeps(t *testing.T) {
 }
 
 func TestAnalyzeDependents(t *testing.T) {
-	info, err := pkginfo.New("./../../testdata/layer/domain/model/")
-	if err != nil {
-		t.Errorf("NewInfo() should not return error, but got %v", err)
-	}
-
-	graph := New(info)
+	graph := BuildDepGraph(t, "./../../testdata/layer/domain/model/")
 	graph.AnalyzeDependents()
 
 	recipePkg := "github.com/junyaU/mimi/testdata/layer/domain/model/recipe"
@@ -128,7 +108,23 @@ func TestAnalyzeDependents(t *testing.T) {
 		t.Errorf("NewGraph() should return %v, but got %v", recipePkg, graph.nodes[0].Dependents[0])
 	}
 
-	if graph.nodes[1].Dependents[0] != testPackage {
-		t.Errorf("NewGraph() should return %v, but got %v", testPackage, graph.nodes[1].Dependents[0])
+	if graph.nodes[1].Dependents[0] != flowPackage {
+		t.Errorf("NewGraph() should return %v, but got %v", flowPackage, graph.nodes[1].Dependents[0])
 	}
+}
+
+func BuildDepGraph(t *testing.T, path string) *DepGraph {
+	t.Helper()
+
+	info, err := pkginfo.New(path)
+	if err != nil {
+		t.Fatalf("Failed to create pkginfo: %v", err)
+	}
+
+	graph, err := NewDepGraph(info)
+	if err != nil {
+		t.Fatalf("Failed to create depgraph: %v", err)
+	}
+
+	return graph
 }

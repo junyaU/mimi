@@ -4,7 +4,7 @@ Copyright © 2023 junyaU <junyaadgj@gmail.com>
 package cmd
 
 import (
-	"github.com/junyaU/mimi/pkg/depgraph"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -28,12 +28,12 @@ This command will list all packages that are dependent on the package located at
 			cobra.CheckErr(err)
 		}
 
-		depsChecker, err := newDepsChecker("./")
+		graph, err := buildDepGraph("./")
 		if err != nil {
 			cobra.CheckErr(err)
 		}
 
-		if err := outputDependents(depsChecker, args[0]); err != nil {
+		if err := outputDependents(graph, args[0]); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -43,10 +43,10 @@ func init() {
 	rootCmd.AddCommand(depsCmd)
 }
 
-func outputDependents(depsChecker *depgraph.Graph, path string) error {
-	depsChecker.AnalyzeDependents()
+func outputDependents(graph *analysis.DepGraph, path string) error {
+	graph.AnalyzeDependents()
 
-	drawer, err := output.NewLogDrawer(depsChecker.GetNodes())
+	drawer, err := output.NewLogDrawer(graph.GetNodes())
 	if err != nil {
 		cobra.CheckErr(err)
 	}
