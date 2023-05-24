@@ -30,12 +30,12 @@ var checkCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		depsChecker, err := newDepsChecker(args[0])
+		graph, err := buildDepGraph(args[0])
 		if err != nil {
 			cobra.CheckErr(err)
 		}
 
-		if err := checkDepsThresholds(depsChecker, directThreshold, indirectThreshold, depthThreshold, linesThreshold); err != nil {
+		if err := checkDepsThresholds(graph, directThreshold, indirectThreshold, depthThreshold, linesThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -50,10 +50,10 @@ func init() {
 	checkCmd.Flags().IntVarP(&linesThreshold, "lines", "l", 0, "Threshold for lines of code")
 }
 
-func checkDepsThresholds(checker *analysis.Graph, direct, indirect, depth, lines int) error {
-	checker.AnalyzeIndirectDeps()
+func checkDepsThresholds(graph *analysis.DepGraph, direct, indirect, depth, lines int) error {
+	graph.AnalyzeIndirectDeps()
 
-	drawer, err := output.NewLogDrawer(checker.GetNodes())
+	drawer, err := output.NewLogDrawer(graph.GetNodes())
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}

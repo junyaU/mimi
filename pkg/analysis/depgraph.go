@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"fmt"
 	"github.com/junyaU/mimi/pkg/pkginfo"
 	"github.com/junyaU/mimi/pkg/utils"
 	"strconv"
@@ -15,31 +16,35 @@ type Node struct {
 	Lines      int
 }
 
-type Graph struct {
+type DepGraph struct {
 	nodes         []Node
 	dependencyMap map[string]pkginfo.Package
 }
 
-func NewGraph(pkgOverview *pkginfo.PackageOverview) *Graph {
+func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {
+	if len(pkgOverview.Packages) == 0 {
+		return nil, fmt.Errorf("no packages found")
+	}
+
 	dependencyMap := make(map[string]pkginfo.Package)
 	for _, dependency := range pkgOverview.Dependencies {
 		dependencyMap[dependency.Name] = dependency
 	}
 
-	graph := &Graph{
+	graph := &DepGraph{
 		dependencyMap: dependencyMap,
 	}
 
 	analyzeDirectDeps(graph, pkgOverview.Packages)
 
-	return graph
+	return graph, nil
 }
 
-func (g *Graph) GetNodes() []Node {
+func (g *DepGraph) GetNodes() []Node {
 	return g.nodes
 }
 
-func (g *Graph) PrintRows() [][]string {
+func (g *DepGraph) PrintRows() [][]string {
 	var rows [][]string
 	for _, node := range g.nodes {
 		rows = append(rows, []string{
@@ -53,7 +58,7 @@ func (g *Graph) PrintRows() [][]string {
 	return rows
 }
 
-func (g *Graph) AnalyzeDependents() {
+func (g *DepGraph) AnalyzeDependents() {
 	for _, node := range g.nodes {
 		for _, importedPkg := range node.Direct {
 			for index := range g.nodes {
@@ -67,7 +72,7 @@ func (g *Graph) AnalyzeDependents() {
 	}
 }
 
-func (g *Graph) AnalyzeIndirectDeps() {
+func (g *DepGraph) AnalyzeIndirectDeps() {
 	for index := range g.nodes {
 		visited := make(map[string]bool)
 		targetIndirect := make(map[string]bool)
@@ -82,7 +87,7 @@ func (g *Graph) AnalyzeIndirectDeps() {
 	}
 }
 
-func (g *Graph) AnalyzePackageLines(projectpkgs ProjectPackages) error {
+func (g *DepGraph) AnalyzePackageLines(projectpkgs ProjectPackages) error {
 	for index := range g.nodes {
 		pkg, err := projectpkgs.GetPackage(g.nodes[index].Package)
 		if err != nil {
@@ -128,7 +133,7 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 	return
 }
 
-func analyzeDirectDeps(graph *Graph, pkgs []pkginfo.Package) {
+func analyzeDirectDeps(graph *DepGraph, pkgs []pkginfo.Package) {
 	for _, pkg := range pkgs {
 		graph.nodes = append(graph.nodes, Node{
 			Package: pkg.Name,

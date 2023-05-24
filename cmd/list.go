@@ -25,12 +25,12 @@ your project. Specify the package path as an argument.`,
 			cobra.CheckErr(err)
 		}
 
-		depsChecker, err := newDepsChecker(args[0])
+		graph, err := buildDepGraph(args[0])
 		if err != nil {
 			cobra.CheckErr(err)
 		}
 
-		if err := outputDepsList(depsChecker); err != nil {
+		if err := outputDepsList(graph); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -40,10 +40,10 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 }
 
-func outputDepsList(checker *analysis.Graph) error {
-	checker.AnalyzeIndirectDeps()
+func outputDepsList(graph *analysis.DepGraph) error {
+	graph.AnalyzeIndirectDeps()
 
-	drawer, err := output.NewLogDrawer(checker.GetNodes())
+	drawer, err := output.NewLogDrawer(graph.GetNodes())
 	if err != nil {
 		return fmt.Errorf("failed to output deps list: %w", err)
 	}

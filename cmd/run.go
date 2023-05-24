@@ -35,12 +35,12 @@ The configuration file should be in YAML format and contain a list of commands t
 			i += 1
 			fmt.Printf("command %d: %s %s \n", i, command.Name, command.Path)
 
-			checker, err := newDepsChecker(command.Path)
+			graph, err := buildDepGraph(command.Path)
 			if err != nil {
 				cobra.CheckErr(fmt.Errorf("command %d failed: %w", i, err))
 			}
 
-			if err := executeCommand(command, checker); err != nil {
+			if err := executeCommand(command, graph); err != nil {
 				cobra.CheckErr(fmt.Errorf("command %d failed: %w", i, err))
 			}
 
@@ -51,16 +51,16 @@ The configuration file should be in YAML format and contain a list of commands t
 	},
 }
 
-func executeCommand(c configparser.Command, checker *analysis.Graph) error {
+func executeCommand(c configparser.Command, graph *analysis.DepGraph) error {
 	switch c.Name {
 	case "list":
-		return outputDepsList(checker)
+		return outputDepsList(graph)
 	case "table":
-		return drawDepsTable(checker, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold, c.LinesThreshold)
+		return drawDepsTable(graph, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold, c.LinesThreshold)
 	case "check":
-		return checkDepsThresholds(checker, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold, c.LinesThreshold)
+		return checkDepsThresholds(graph, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold, c.LinesThreshold)
 	case "deps":
-		return outputDependents(checker, c.Path)
+		return outputDependents(graph, c.Path)
 	default:
 		return fmt.Errorf("invalid command name: %s", c.Name)
 	}

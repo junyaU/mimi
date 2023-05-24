@@ -63,7 +63,7 @@ func checkArgsNotEmpty(args []string) error {
 	return nil
 }
 
-func newDepsChecker(path string) (*analysis.Graph, error) {
+func buildDepGraph(path string) (*analysis.DepGraph, error) {
 	info, err := pkginfo.New(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get package info: %w", err)
@@ -74,7 +74,10 @@ func newDepsChecker(path string) (*analysis.Graph, error) {
 		return nil, fmt.Errorf("failed to get project packages: %w", err)
 	}
 
-	graph := analysis.NewGraph(info)
+	graph, err := analysis.NewDepGraph(info)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get dep graph: %w", err)
+	}
 
 	if err := graph.AnalyzePackageLines(projectPkg); err != nil {
 		return nil, fmt.Errorf("failed to analyze package lines: %w", err)
