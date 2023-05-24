@@ -10,6 +10,7 @@ commands:
       path: ./../testdata/layer/domain/model/flow
       directThreshold: 5
       indirectThreshold: 2
+      linesThreshold: 500
   - name: table
     parameters:
       path: ./../testdata/layer/domain/model/creator
