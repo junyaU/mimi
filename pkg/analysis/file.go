@@ -36,7 +36,7 @@ func NewProjectPackages(pkgs []pkginfo.Package) (ProjectPackages, error) {
 		for _, f := range pkg.Files {
 			file, err := os.Open(f)
 			if err != nil {
-				return ProjectPackages{}, fmt.Errorf("failed to open file: %s", err)
+				return ProjectPackages{}, fmt.Errorf("failed to open file %s: %w", f, err)
 			}
 
 			scanner := bufio.NewScanner(file)
@@ -46,7 +46,7 @@ func NewProjectPackages(pkgs []pkginfo.Package) (ProjectPackages, error) {
 			}
 
 			if err := scanner.Err(); err != nil {
-				return ProjectPackages{}, fmt.Errorf("failed to scan file: %s", err)
+				return ProjectPackages{}, fmt.Errorf("failed to scan file %s: %w", f, err)
 			}
 
 			detail.Files = append(detail.Files, File{

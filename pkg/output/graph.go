@@ -42,7 +42,7 @@ func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) (*Ta
 	}, nil
 }
 
-func (g *TableDrawer) DrawTable(rows [][]string) error {
+func (d *TableDrawer) DrawTable(rows [][]string) error {
 	if len(rows) == 0 {
 		return fmt.Errorf("no packages found")
 	}
@@ -51,50 +51,41 @@ func (g *TableDrawer) DrawTable(rows [][]string) error {
 		return fmt.Errorf("invalid rows")
 	}
 
-	for _, row := range rows {
-		directDepsNum, err := strconv.Atoi(row[1])
+	for i, row := range rows {
+		nums, err := parseRowNumbers(row)
 		if err != nil {
-			return err
+			return fmt.Errorf("error parsing numbers in row at index %d: %v", i, err)
 		}
 
-		indirectDepsNum, err := strconv.Atoi(row[2])
-		if err != nil {
-			return err
-		}
-
-		depthNum, err := strconv.Atoi(row[3])
-		if err != nil {
-			return err
-		}
-
-		linesNum, err := strconv.Atoi(row[4])
-		if err != nil {
-			return err
-		}
-
-		if g.maxDirectDeps > 0 && directDepsNum > g.maxDirectDeps {
-			row[0] = g.limitColor(row[0])
-			row[1] = g.limitColor(row[1])
-		}
-
-		if g.maxIndirectDeps > 0 && indirectDepsNum > g.maxIndirectDeps {
-			row[0] = g.limitColor(row[0])
-			row[2] = g.limitColor(row[2])
-		}
-
-		if g.maxDepth > 0 && depthNum > g.maxDepth {
-			row[0] = g.limitColor(row[0])
-			row[3] = g.limitColor(row[3])
-		}
-
-		if g.maxLines > 0 && linesNum > g.maxLines {
-			row[0] = g.limitColor(row[0])
-			row[4] = g.limitColor(row[4])
-		}
-
-		g.table.Append(row)
+		d.table.Append(checkAndColorLimit(d, row, nums))
 	}
 
-	g.table.Render()
+	d.table.Render()
 	return nil
+}
+
+func parseRowNumbers(row []string) ([4]int, error) {
+	var nums [4]int
+	for i := 1; i <= 4; i++ {
+		num, err := strconv.Atoi(row[i])
+		if err != nil {
+			return nums, fmt.Errorf("invalid number at position %d: %v", i, err)
+		}
+		nums[i-1] = num
+	}
+
+	return nums, nil
+}
+
+func checkAndColorLimit(d *TableDrawer, row []string, nums [4]int) []string {
+	limits := [4]int{d.maxDirectDeps, d.maxIndirectDeps, d.maxDepth, d.maxLines}
+
+	for i, num := range nums {
+		if limits[i] > 0 && num > limits[i] {
+			row[0] = d.limitColor(row[0])
+			row[i+1] = d.limitColor(row[i+1])
+		}
+	}
+
+	return row
 }

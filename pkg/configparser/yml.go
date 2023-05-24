@@ -32,7 +32,7 @@ type Command struct {
 	LinesThreshold    int
 }
 
-func (c *ConfigCommand) IsVaild() bool {
+func (c *ConfigCommand) IsValid() bool {
 	switch c.Name {
 	case "check", "list", "table", "deps":
 	default:
@@ -66,7 +66,7 @@ func NewYmlConfig(path string) (*YmlConfig, error) {
 func (c *YmlConfig) GetCommands() ([]Command, error) {
 	var commands []Command
 	for _, command := range c.Commands {
-		if !command.IsVaild() {
+		if !command.IsValid() {
 			return nil, fmt.Errorf("invalid command: %v", command.Name)
 		}
 
