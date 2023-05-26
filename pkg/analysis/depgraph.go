@@ -7,6 +7,14 @@ import (
 	"strconv"
 )
 
+const (
+	directDependencyWeights   = 0.2
+	indirectDependencyWeights = 0.25
+	dependentWeights          = 0.3
+	depthWeights              = 0.15
+	linesWeights              = 0.1
+)
+
 type Node struct {
 	Package    string
 	Direct     []string
@@ -14,11 +22,22 @@ type Node struct {
 	Dependents []string
 	Depth      int
 	Lines      int
+	Weight     float64
+}
+
+type Limits struct {
+	Min int
+	Max int
 }
 
 type DepGraph struct {
-	nodes         []Node
-	dependencyMap map[string]pkginfo.Package
+	nodes           []Node
+	dependencyMap   map[string]pkginfo.Package
+	directLimits    *Limits
+	indirectLimits  *Limits
+	dependentLimits *Limits
+	depthLimits     *Limits
+	linesLimits     *Limits
 }
 
 func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {
@@ -32,7 +51,12 @@ func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {
 	}
 
 	graph := &DepGraph{
-		dependencyMap: dependencyMap,
+		dependencyMap:   dependencyMap,
+		directLimits:    NewLimits(),
+		indirectLimits:  NewLimits(),
+		dependentLimits: NewLimits(),
+		depthLimits:     NewLimits(),
+		linesLimits:     NewLimits(),
 	}
 
 	analyzeDirectDeps(graph, pkgOverview.Packages)
@@ -62,10 +86,9 @@ func (g *DepGraph) AnalyzeDependents() {
 	for _, node := range g.nodes {
 		for _, importedPkg := range node.Direct {
 			for index := range g.nodes {
-				if g.nodes[index].Package == importedPkg {
-					if !utils.Contains(g.nodes[index].Dependents, node.Package) {
-						g.nodes[index].Dependents = append(g.nodes[index].Dependents, node.Package)
-					}
+				if g.nodes[index].Package == importedPkg && !utils.Contains(g.nodes[index].Dependents, node.Package) {
+					g.nodes[index].Dependents = append(g.nodes[index].Dependents, node.Package)
+					g.dependentLimits.Update(len(g.nodes[index].Dependents))
 				}
 			}
 		}
@@ -80,21 +103,27 @@ func (g *DepGraph) AnalyzeIndirectDeps() {
 		depth := findIndirectDeps(&g.nodes[index], &g.nodes[index], g.dependencyMap, targetIndirect, visited, 0)
 
 		g.nodes[index].Depth = depth
+		g.depthLimits.Update(depth)
 
 		for pkg := range targetIndirect {
 			g.nodes[index].Indirect = append(g.nodes[index].Indirect, pkg)
 		}
+
+		g.indirectLimits.Update(len(g.nodes[index].Indirect))
 	}
 }
 
-func (g *DepGraph) AnalyzePackageLines(projectpkgs ProjectPackages) error {
+func (g *DepGraph) AnalyzePackageLines(projectPkgs ProjectPackages) error {
 	for index := range g.nodes {
-		pkg, err := projectpkgs.GetPackage(g.nodes[index].Package)
+		pkg, err := projectPkgs.GetPackage(g.nodes[index].Package)
 		if err != nil {
 			return err
 		}
 
-		g.nodes[index].Lines = pkg.GetLines()
+		lines := pkg.GetLines()
+
+		g.nodes[index].Lines = lines
+		g.linesLimits.Update(lines)
 	}
 
 	return nil
@@ -133,11 +162,48 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 	return
 }
 
+func (n *Node) CalculateWeightsScore(directL Limits, indirectL Limits, dependentL Limits, depthL Limits, linesL Limits) {
+	normalize := func(val int, limit Limits) float64 {
+		if limit.Max == limit.Min {
+			return 0
+		}
+
+		return (float64(val - limit.Min)) / (float64(limit.Max - limit.Min))
+	}
+
+	directScore := normalize(len(n.Direct), directL) * directDependencyWeights
+	indirectScore := normalize(len(n.Indirect), indirectL) * indirectDependencyWeights
+	dependentScore := normalize(len(n.Dependents), dependentL) * dependentWeights
+	depthScore := normalize(n.Depth, depthL) * depthWeights
+	linesScore := normalize(n.Lines, linesL) * linesWeights
+
+	n.Weight = directScore + indirectScore + dependentScore + depthScore + linesScore
+}
+
 func analyzeDirectDeps(graph *DepGraph, pkgs []pkginfo.Package) {
 	for _, pkg := range pkgs {
 		graph.nodes = append(graph.nodes, Node{
 			Package: pkg.Name,
 			Direct:  pkg.Imports,
 		})
+
+		graph.directLimits.Update(len(pkg.Imports))
+	}
+}
+
+func NewLimits() *Limits {
+	return &Limits{
+		Min: 10000,
+		Max: 0,
+	}
+}
+
+func (l *Limits) Update(val int) {
+	if val < l.Min {
+		l.Min = val
+	}
+
+	if val > l.Max {
+		l.Max = val
 	}
 }
