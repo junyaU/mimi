@@ -8,11 +8,10 @@ import (
 )
 
 const (
-	directDependencyWeights   = 0.2
-	indirectDependencyWeights = 0.25
-	dependentWeights          = 0.3
-	depthWeights              = 0.15
-	linesWeights              = 0.1
+	directDependencyWeights   = 0.3
+	indirectDependencyWeights = 0.3
+	dependentWeights          = 0.2
+	depthWeights              = 0.2
 )
 
 type Node struct {
@@ -22,7 +21,7 @@ type Node struct {
 	Dependents []string
 	Depth      int
 	Lines      int
-	Weight     float64
+	Weight     float32
 }
 
 type Limits struct {
@@ -37,7 +36,6 @@ type DepGraph struct {
 	indirectLimits  *Limits
 	dependentLimits *Limits
 	depthLimits     *Limits
-	linesLimits     *Limits
 }
 
 func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {
@@ -56,7 +54,6 @@ func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {
 		indirectLimits:  NewLimits(),
 		dependentLimits: NewLimits(),
 		depthLimits:     NewLimits(),
-		linesLimits:     NewLimits(),
 	}
 
 	analyzeDirectDeps(graph, pkgOverview.Packages)
@@ -123,10 +120,15 @@ func (g *DepGraph) AnalyzePackageLines(projectPkgs ProjectPackages) error {
 		lines := pkg.GetLines()
 
 		g.nodes[index].Lines = lines
-		g.linesLimits.Update(lines)
 	}
 
 	return nil
+}
+
+func (g *DepGraph) AnalyzeWeights() {
+	for index := range g.nodes {
+		g.nodes[index].calculateWeightsScore(*g.directLimits, *g.indirectLimits, *g.dependentLimits, *g.depthLimits)
+	}
 }
 
 // Depth-First Search
@@ -162,22 +164,21 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 	return
 }
 
-func (n *Node) CalculateWeightsScore(directL Limits, indirectL Limits, dependentL Limits, depthL Limits, linesL Limits) {
-	normalize := func(val int, limit Limits) float64 {
+func (n *Node) calculateWeightsScore(directL Limits, indirectL Limits, dependentL Limits, depthL Limits) {
+	normalize := func(val int, limit Limits) float32 {
 		if limit.Max == limit.Min {
 			return 0
 		}
 
-		return (float64(val - limit.Min)) / (float64(limit.Max - limit.Min))
+		return (float32(val - limit.Min)) / (float32(limit.Max - limit.Min))
 	}
 
 	directScore := normalize(len(n.Direct), directL) * directDependencyWeights
 	indirectScore := normalize(len(n.Indirect), indirectL) * indirectDependencyWeights
 	dependentScore := normalize(len(n.Dependents), dependentL) * dependentWeights
 	depthScore := normalize(n.Depth, depthL) * depthWeights
-	linesScore := normalize(n.Lines, linesL) * linesWeights
 
-	n.Weight = directScore + indirectScore + dependentScore + depthScore + linesScore
+	n.Weight = directScore + indirectScore + dependentScore + depthScore
 }
 
 func analyzeDirectDeps(graph *DepGraph, pkgs []pkginfo.Package) {

@@ -60,10 +60,14 @@ func (l *LogDrawer) Draw() {
 	}
 }
 
-func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) bool {
+func (l *LogDrawer) ReportExceededDeps(path string, maxDirectDeps, maxIndirectDeps, maxDepth, maxLines, maxDependent int, weight float32) bool {
 	exceeded := false
 
 	for _, node := range l.nodes {
+		if !isMatched(path, node.Package) {
+			continue
+		}
+
 		if maxDirectDeps > 0 && len(node.Direct) > maxDirectDeps {
 			l.fail.Printf("Package %s has %d direct dependencies\n", node.Package, len(node.Direct))
 			exceeded = true
@@ -82,21 +86,24 @@ func (l *LogDrawer) ReportExceededDeps(maxDirectDeps, maxIndirectDeps, maxDepth,
 			l.fail.Printf("Package %s has %d lines\n", node.Package, node.Lines)
 			exceeded = true
 		}
+
+		if maxDependent > 0 && len(node.Dependents) > maxDependent {
+			l.fail.Printf("Package %s has %d dependents\n", node.Package, len(node.Dependents))
+			exceeded = true
+		}
+
+		if weight > 0 && node.Weight > weight {
+			l.fail.Printf("Package %s has %f weight\n", node.Package, node.Weight)
+			exceeded = true
+		}
 	}
 
 	return exceeded
 }
 
-func (l *LogDrawer) DrawDependents(path string) error {
-	moduleName, err := utils.GetModuleName()
-	if err != nil {
-		return err
-	}
-
-	modulePath := filepath.Join(moduleName, strings.TrimPrefix(path, "./"))
-
+func (l *LogDrawer) DrawDependents(path string) {
 	for _, node := range l.nodes {
-		if !strings.Contains(node.Package, modulePath) {
+		if !isMatched(path, node.Package) {
 			continue
 		}
 
@@ -111,6 +118,19 @@ func (l *LogDrawer) DrawDependents(path string) error {
 
 		fmt.Print("\n")
 	}
+}
 
-	return nil
+func isMatched(path string, pkg string) bool {
+	if path == "" {
+		return false
+	}
+
+	moduleName, err := utils.GetModuleName()
+	if err != nil {
+		return false
+	}
+
+	modulePath := filepath.Join(moduleName, strings.TrimPrefix(path, "./"))
+
+	return strings.Contains(pkg, modulePath)
 }

@@ -14,6 +14,8 @@ var directThreshold int
 var indirectThreshold int
 var depthThreshold int
 var linesThreshold int
+var dependentThreshold int
+var weightThreshold float32
 
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
@@ -30,12 +32,18 @@ var checkCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		graph, err := buildDepGraph(args[0])
+		path := args[0]
+
+		if dependentThreshold > 0 || weightThreshold > 0 {
+			path = "./"
+		}
+
+		graph, err := buildDepGraph(path)
 		if err != nil {
 			cobra.CheckErr(err)
 		}
 
-		if err := checkDepsThresholds(graph, directThreshold, indirectThreshold, depthThreshold, linesThreshold); err != nil {
+		if err := checkDepsThresholds(graph, args[0], directThreshold, indirectThreshold, depthThreshold, linesThreshold, dependentThreshold, weightThreshold); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -48,17 +56,26 @@ func init() {
 	checkCmd.Flags().IntVarP(&indirectThreshold, "indirect", "i", 0, "Threshold for indirect dependencies")
 	checkCmd.Flags().IntVarP(&depthThreshold, "depth", "z", 0, "Threshold for depth of dependency graph")
 	checkCmd.Flags().IntVarP(&linesThreshold, "lines", "l", 0, "Threshold for lines of code")
+	checkCmd.Flags().IntVarP(&dependentThreshold, "dependent", "p", 0, "Threshold for dependent packages")
+	checkCmd.Flags().Float32VarP(&weightThreshold, "weight", "w", 0, "Threshold for weight of dependency graph")
+
 }
 
-func checkDepsThresholds(graph *analysis.DepGraph, direct, indirect, depth, lines int) error {
+func checkDepsThresholds(graph *analysis.DepGraph, path string, direct, indirect, depth, lines, dependent int, weight float32) error {
 	graph.AnalyzeIndirectDeps()
+
+	if dependent > 0 || weight > 0 {
+		graph.AnalyzeDependents()
+		graph.AnalyzeWeights()
+	}
 
 	drawer, err := output.NewLogDrawer(graph.GetNodes())
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}
 
-	if (direct > 0 || indirect > 0 || depth > 0 || lines > 0) && drawer.ReportExceededDeps(direct, indirect, depth, lines) {
+	isSetOption := direct > 0 || indirect > 0 || depth > 0 || lines > 0 || dependent > 0 || weight > 0
+	if isSetOption && drawer.ReportExceededDeps(path, direct, indirect, depth, lines, dependent, weight) {
 		return fmt.Errorf("exceeded dependency threshold")
 	}
 

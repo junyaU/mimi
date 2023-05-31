@@ -16,20 +16,24 @@ type ConfigCommand struct {
 }
 
 type CommandParams struct {
-	Path              string `yaml:"path"`
-	DirectThreshold   int    `yaml:"directThreshold"`
-	IndirectThreshold int    `yaml:"indirectThreshold"`
-	DepthThreshold    int    `yaml:"depthThreshold"`
-	LinesThreshold    int    `yaml:"linesThreshold"`
+	Path               string  `yaml:"path"`
+	DirectThreshold    int     `yaml:"directThreshold"`
+	IndirectThreshold  int     `yaml:"indirectThreshold"`
+	DepthThreshold     int     `yaml:"depthThreshold"`
+	LinesThreshold     int     `yaml:"linesThreshold"`
+	DependentThreshold int     `yaml:"dependentThreshold"`
+	WeightThreshold    float32 `yaml:"weightThreshold"`
 }
 
 type Command struct {
-	Name              string
-	Path              string
-	DirectThreshold   int
-	IndirectThreshold int
-	DepthThreshold    int
-	LinesThreshold    int
+	Name               string
+	Path               string
+	DirectThreshold    int
+	IndirectThreshold  int
+	DepthThreshold     int
+	LinesThreshold     int
+	DependentThreshold int
+	WeightThreshold    float32
 }
 
 func (c *ConfigCommand) IsValid() bool {
@@ -71,12 +75,14 @@ func (c *YmlConfig) GetCommands() ([]Command, error) {
 		}
 
 		commands = append(commands, Command{
-			Name:              command.Name,
-			Path:              command.Parameters.Path,
-			DirectThreshold:   command.Parameters.DirectThreshold,
-			IndirectThreshold: command.Parameters.IndirectThreshold,
-			DepthThreshold:    command.Parameters.DepthThreshold,
-			LinesThreshold:    command.Parameters.LinesThreshold,
+			Name:               command.Name,
+			Path:               command.Parameters.Path,
+			DirectThreshold:    command.Parameters.DirectThreshold,
+			IndirectThreshold:  command.Parameters.IndirectThreshold,
+			DepthThreshold:     command.Parameters.DepthThreshold,
+			LinesThreshold:     command.Parameters.LinesThreshold,
+			DependentThreshold: command.Parameters.DependentThreshold,
+			WeightThreshold:    command.Parameters.WeightThreshold,
 		})
 	}
 

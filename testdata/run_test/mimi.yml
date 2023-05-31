@@ -11,6 +11,7 @@ commands:
       directThreshold: 5
       indirectThreshold: 2
       linesThreshold: 500
+      weightThreshold: 0.5
   - name: table
     parameters:
       path: ./../testdata/layer/domain/model/creator
