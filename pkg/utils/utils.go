@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,6 +13,23 @@ func GetModuleName() (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func IsMatchedPackage(filePath, packageName string) bool {
+	if filePath == "" {
+		return false
+	}
+
+	moduleName, err := GetModuleName()
+	if err != nil {
+		return false
+	}
+
+	pkgPath := strings.ReplaceAll(filepath.Clean(filePath), "../", "")
+
+	modulePath := filepath.Join(moduleName, pkgPath)
+
+	return strings.Contains(packageName, modulePath)
 }
 
 func Contains(slice []string, target string) bool {

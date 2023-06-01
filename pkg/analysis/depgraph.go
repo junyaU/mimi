@@ -72,8 +72,10 @@ func (g *DepGraph) PrintRows() [][]string {
 			node.Package,
 			strconv.Itoa(len(node.Direct)),
 			strconv.Itoa(len(node.Indirect)),
+			strconv.Itoa(len(node.Dependents)),
 			strconv.Itoa(node.Depth),
 			strconv.Itoa(node.Lines),
+			fmt.Sprintf("%f", node.Weight),
 		})
 	}
 	return rows

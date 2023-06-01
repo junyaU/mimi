@@ -3,10 +3,15 @@ package output
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/junyaU/mimi/pkg/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
 	"strconv"
 )
+
+const numTableIntColumns = 5
+
+var tableHeaders = []string{"Package", "Direct Deps", "Indirect Deps", "Dependents", "Depth", "Lines", "Weight"}
 
 type TableDrawer struct {
 	table           *tablewriter.Table
@@ -14,17 +19,19 @@ type TableDrawer struct {
 	maxIndirectDeps int
 	maxDepth        int
 	maxLines        int
+	maxDependents   int
+	maxWeight       float32
 	limitColor      func(a ...interface{}) string
 }
 
-func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) (*TableDrawer, error) {
-	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 || maxLines < 0 {
-		return nil, fmt.Errorf("invalid maxDirectDeps, maxIndirectDeps or maxDepth")
+func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDependents, maxDepth, maxLines int, maxWeight float32) (*TableDrawer, error) {
+	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 || maxLines < 0 || maxWeight < 0 || maxDependents < 0 {
+		return nil, fmt.Errorf("all limits should be positive")
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 
-	table.SetHeader([]string{"Package", "Direct Deps", "Indirect Deps", "Depth", "Lines"})
+	table.SetHeader(tableHeaders)
 
 	table.SetRowLine(true)
 	table.SetCenterSeparator("+")
@@ -38,53 +45,74 @@ func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDepth, maxLines int) (*Ta
 		maxIndirectDeps: maxIndirectDeps,
 		maxDepth:        maxDepth,
 		maxLines:        maxLines,
+		maxDependents:   maxDependents,
+		maxWeight:       maxWeight,
 		limitColor:      color.New(color.FgRed).SprintFunc(),
 	}, nil
 }
 
-func (d *TableDrawer) DrawTable(rows [][]string) error {
+func (d *TableDrawer) DrawTable(path string, rows [][]string) error {
 	if len(rows) == 0 {
 		return fmt.Errorf("no packages found")
 	}
 
-	if len(rows[0]) != 5 {
-		return fmt.Errorf("invalid rows")
+	if len(rows[0]) != len(tableHeaders) {
+		return fmt.Errorf("rows should have exactly %d columns", len(tableHeaders))
 	}
 
 	for i, row := range rows {
-		nums, err := parseRowNumbers(row)
+		if !utils.IsMatchedPackage(path, row[0]) {
+			continue
+		}
+
+		nums, weight, err := parseRowNumbers(row)
 		if err != nil {
 			return fmt.Errorf("error parsing numbers in row at index %d: %v", i, err)
 		}
 
-		d.table.Append(checkAndColorLimit(d, row, nums))
+		d.table.Append(checkAndColorLimit(d, row, nums, weight))
+	}
+
+	if d.table.NumLines() == 0 {
+		return fmt.Errorf("no packages found")
 	}
 
 	d.table.Render()
 	return nil
 }
 
-func parseRowNumbers(row []string) ([4]int, error) {
-	var nums [4]int
-	for i := 1; i <= 4; i++ {
+func parseRowNumbers(row []string) ([numTableIntColumns]int, float32, error) {
+	var nums [numTableIntColumns]int
+
+	for i := 1; i <= numTableIntColumns; i++ {
 		num, err := strconv.Atoi(row[i])
 		if err != nil {
-			return nums, fmt.Errorf("invalid number at position %d: %v", i, err)
+			return nums, 0, fmt.Errorf("invalid number at position %d: %v", i, err)
 		}
 		nums[i-1] = num
 	}
 
-	return nums, nil
+	parseWeight, err := strconv.ParseFloat(row[numTableIntColumns+1], 32)
+	if err != nil {
+		return nums, 0, fmt.Errorf("invalid weight: %v", err)
+	}
+
+	return nums, float32(parseWeight), nil
 }
 
-func checkAndColorLimit(d *TableDrawer, row []string, nums [4]int) []string {
-	limits := [4]int{d.maxDirectDeps, d.maxIndirectDeps, d.maxDepth, d.maxLines}
+func checkAndColorLimit(d *TableDrawer, row []string, nums [numTableIntColumns]int, weight float32) []string {
+	limits := [numTableIntColumns]int{d.maxDirectDeps, d.maxIndirectDeps, d.maxDepth, d.maxDependents, d.maxLines}
 
 	for i, num := range nums {
 		if limits[i] > 0 && num > limits[i] {
 			row[0] = d.limitColor(row[0])
 			row[i+1] = d.limitColor(row[i+1])
 		}
+	}
+
+	if d.maxWeight > 0 && weight > d.maxWeight {
+		row[0] = d.limitColor(row[0])
+		row[numTableIntColumns+1] = d.limitColor(row[numTableIntColumns+1])
 	}
 
 	return row

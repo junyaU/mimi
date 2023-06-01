@@ -40,8 +40,8 @@ func TestPrintRows(t *testing.T) {
 
 	rows := graph.PrintRows()
 
-	if len(rows[0]) != 5 {
-		t.Errorf("PrintRows() should return %v, but got %v", 4, len(rows))
+	if len(rows[0]) != 7 {
+		t.Errorf("PrintRows() should return %v, but got %v", 7, len(rows))
 	}
 
 	if rows[0][0] != flowPackage {

@@ -15,6 +15,28 @@ func TestGetModuleName(t *testing.T) {
 	}
 }
 
+func TestIsMatchedPackage(t *testing.T) {
+	testPackage := "github.com/junyaU/mimi/testdata/layer/domain/model/creator"
+
+	tests := []struct {
+		path   string
+		pkg    string
+		expect bool
+	}{
+		{"./testdata/layer", testPackage, true},
+		{"./testdata/layer/domain/invalid", testPackage, false},
+		{"", testPackage, false},
+		{"./testdata", "", false},
+	}
+
+	for _, test := range tests {
+		fact := IsMatchedPackage(test.path, test.pkg)
+		if fact != test.expect {
+			t.Errorf("isMatched(%v, %v) should return %v", test.path, test.pkg, test.expect)
+		}
+	}
+}
+
 func TestContains(t *testing.T) {
 	tests := []struct {
 		slice  []string
@@ -34,5 +56,4 @@ func TestContains(t *testing.T) {
 		}
 
 	}
-
 }

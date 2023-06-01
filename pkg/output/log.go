@@ -7,8 +7,6 @@ import (
 	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/utils"
 	"os"
-	"path/filepath"
-	"strings"
 )
 
 type LogDrawer struct {
@@ -64,7 +62,7 @@ func (l *LogDrawer) ReportExceededDeps(path string, maxDirectDeps, maxIndirectDe
 	exceeded := false
 
 	for _, node := range l.nodes {
-		if !isMatched(path, node.Package) {
+		if !utils.IsMatchedPackage(path, node.Package) {
 			continue
 		}
 
@@ -103,7 +101,7 @@ func (l *LogDrawer) ReportExceededDeps(path string, maxDirectDeps, maxIndirectDe
 
 func (l *LogDrawer) DrawDependents(path string) {
 	for _, node := range l.nodes {
-		if !isMatched(path, node.Package) {
+		if !utils.IsMatchedPackage(path, node.Package) {
 			continue
 		}
 
@@ -118,19 +116,4 @@ func (l *LogDrawer) DrawDependents(path string) {
 
 		fmt.Print("\n")
 	}
-}
-
-func isMatched(path string, pkg string) bool {
-	if path == "" {
-		return false
-	}
-
-	moduleName, err := utils.GetModuleName()
-	if err != nil {
-		return false
-	}
-
-	modulePath := filepath.Join(moduleName, strings.TrimPrefix(path, "./"))
-
-	return strings.Contains(pkg, modulePath)
 }
