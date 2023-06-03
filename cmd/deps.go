@@ -51,5 +51,6 @@ func outputDependents(graph *analysis.DepGraph, path string) error {
 		cobra.CheckErr(err)
 	}
 
-	return drawer.DrawDependents(path)
+	drawer.DrawDependents(path)
+	return nil
 }

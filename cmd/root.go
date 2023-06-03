@@ -30,6 +30,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var directThreshold int
+var indirectThreshold int
+var depthThreshold int
+var linesThreshold int
+var dependentThreshold int
+var weightThreshold float32
+var weightFlag bool
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "mimi",

@@ -11,7 +11,7 @@ func TestNewLogDrawer(t *testing.T) {
 		wantErr bool
 	}{
 		{[]analysis.Node{}, true},
-		{[]analysis.Node{{"dummy", []string{}, []string{}, []string{}, 0, 10}}, false},
+		{[]analysis.Node{{"dummy", []string{}, []string{}, []string{}, 0, 10, 0.5}}, false},
 	}
 
 	for _, test := range tests {
@@ -28,38 +28,58 @@ func TestNewLogDrawer(t *testing.T) {
 }
 
 func TestLogDrawer_ReportExceededDeps(t *testing.T) {
+	testPackage := "github.com/junyaU/mimi/a"
+
 	tests := []struct {
 		nodes           []analysis.Node
 		maxDirectDeps   int
 		maxIndirectDeps int
 		maxDepth        int
 		maxLines        int
+		maxDependents   int
+		maxWeight       float32
 		expect          bool
 	}{
 		{[]analysis.Node{
-			{"a", []string{"a"}, []string{"b"}, []string{"c"}, 2, 10},
+			{testPackage, []string{"a"}, []string{"b"}, []string{"c"}, 2, 10, 0.5},
 		},
 			1,
 			1,
 			3,
 			100,
+			10,
+			0.8,
 			false,
 		},
 		{[]analysis.Node{
-			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2, 10},
+			{testPackage, []string{"a", "b", "c"}, []string{"b"}, []string{"a"}, 2, 10, 0.5},
 		},
 			2,
 			1,
 			1,
 			100,
+			10,
+			0.8,
 			true,
 		}, {[]analysis.Node{
-			{"a", []string{"a", "b", "c"}, []string{"b"}, []string{}, 2, 10},
+			{testPackage, []string{"a", "b", "c"}, []string{"b"}, []string{"a"}, 1, 20, 0.5},
 		},
 			6,
 			1,
 			1,
-			5,
+			15,
+			10,
+			0.8,
+			true,
+		}, {[]analysis.Node{
+			{testPackage, []string{"a", "b", "c"}, []string{"b"}, []string{"a"}, 1, 10, 0.5},
+		},
+			6,
+			1,
+			1,
+			15,
+			10,
+			0.4,
 			true,
 		},
 	}
@@ -70,9 +90,9 @@ func TestLogDrawer_ReportExceededDeps(t *testing.T) {
 			t.Errorf("NewLogDrawer(%v) should not return error", test.nodes)
 		}
 
-		fact := logDrawer.ReportExceededDeps(test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth, test.maxLines)
+		fact := logDrawer.ReportExceededDeps("a", test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth, test.maxLines, test.maxDependents, test.maxWeight)
 		if fact != test.expect {
-			t.Error("ReportExceededDeps() should return true")
+			t.Errorf("ReportExceededDeps(%v, %v, %v, %v, %v, %v) should return %v", test.maxDirectDeps, test.maxIndirectDeps, test.maxDepth, test.maxLines, test.maxDependents, test.maxWeight, test.expect)
 		}
 	}
 }

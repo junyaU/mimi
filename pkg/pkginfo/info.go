@@ -9,12 +9,14 @@ import (
 	"strings"
 )
 
+// Package represents a go package in the project.
 type Package struct {
 	Name    string
 	Files   []string
 	Imports []string
 }
 
+// PackageOverview represents an overview of all packages and their dependencies in the project.
 type PackageOverview struct {
 	Packages     []Package
 	Dependencies []Package
@@ -94,6 +96,8 @@ func getPackages(root string) (pkgs []string, err error) {
 	return
 }
 
+// loadPackages loads all packages and their direct dependencies.
+// Packages that do not belong to the project are ignored.
 func loadPackages(pkgOverview *PackageOverview, pkgPaths []string) error {
 	if len(pkgPaths) == 0 {
 		return errors.New("no packages")
@@ -122,6 +126,7 @@ func loadPackages(pkgOverview *PackageOverview, pkgPaths []string) error {
 	return nil
 }
 
+// loadDependencies recursively loads all dependencies for each package.
 func loadDependencies(pkgOverview *PackageOverview) error {
 	for _, pkg := range pkgOverview.Packages {
 		if err := insertDependencies(pkgOverview, pkg.Imports); err != nil {
@@ -132,6 +137,8 @@ func loadDependencies(pkgOverview *PackageOverview) error {
 	return nil
 }
 
+// insertDependencies inserts dependencies for the given import packages.
+// It recursively loads all dependencies for each import package.
 func insertDependencies(pkgOverview *PackageOverview, imports []string) error {
 	loadPkgs, err := packages.Load(loadConfig, imports...)
 	if err != nil {

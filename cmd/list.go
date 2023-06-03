@@ -48,6 +48,6 @@ func outputDepsList(graph *analysis.DepGraph) error {
 		return fmt.Errorf("failed to output deps list: %w", err)
 	}
 
-	drawer.Draw()
+	drawer.DrawList()
 	return nil
 }

@@ -5,6 +5,7 @@ commands:
       path: ./testdata/layer/domain/model
       directThreshold: 2
       indirectThreshold: 3
+      dependentThreshold: 2
   - name: check
     parameters:
       path: ./testdata/layer/domain/model/flow
@@ -12,13 +13,11 @@ commands:
       indirectThreshold: 2
       depthThreshold: 2
       linesThreshold: 1000
+      weightThreshold: 0.5
   - name: table
     parameters:
       path: ./testdata/layer/domain/model
-      directThreshold: 3
-      indirectThreshold: 5
-      depthThreshold: 2
-      linesThreshold: 1000
+      enableWeight: true
   - name: list
     parameters:
       path: ./testdata/layer/domain/model/flow

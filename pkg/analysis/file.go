@@ -7,15 +7,18 @@ import (
 	"os"
 )
 
+// ProjectPackages represents a collection of PackageDetails in a project.
 type ProjectPackages struct {
 	Packages []PackageDetails
 }
 
+// PackageDetails represents details about a package, including its name and files.
 type PackageDetails struct {
 	Name  string
 	Files []File
 }
 
+// File represents details about a file, including its name and the number of lines.
 type File struct {
 	Name  string
 	Lines int

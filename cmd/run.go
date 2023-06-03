@@ -56,9 +56,27 @@ func executeCommand(c configparser.Command, graph *analysis.DepGraph) error {
 	case "list":
 		return outputDepsList(graph)
 	case "table":
-		return drawDepsTable(graph, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold, c.LinesThreshold)
+		return drawDepsTable(
+			graph,
+			c.Path,
+			c.DirectThreshold,
+			c.IndirectThreshold,
+			c.DependentThreshold,
+			c.DepthThreshold,
+			c.LinesThreshold,
+			c.EnableWeight,
+		)
 	case "check":
-		return checkDepsThresholds(graph, c.DirectThreshold, c.IndirectThreshold, c.DepthThreshold, c.LinesThreshold)
+		return checkDepsThresholds(
+			graph,
+			c.Path,
+			c.DirectThreshold,
+			c.IndirectThreshold,
+			c.DepthThreshold,
+			c.LinesThreshold,
+			c.DependentThreshold,
+			c.WeightThreshold,
+		)
 	case "deps":
 		return outputDependents(graph, c.Path)
 	default:

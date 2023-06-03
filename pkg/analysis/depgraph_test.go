@@ -3,7 +3,6 @@ package analysis
 import (
 	"github.com/junyaU/mimi/pkg/pkginfo"
 	"github.com/junyaU/mimi/pkg/utils"
-	"strconv"
 	"testing"
 )
 
@@ -35,35 +34,25 @@ func TestNewGraph(t *testing.T) {
 }
 
 func TestPrintRows(t *testing.T) {
-	graph := BuildDepGraph(t, testPath)
-	graph.AnalyzeIndirectDeps()
-
-	rows := graph.PrintRows()
-
-	if len(rows[0]) != 5 {
-		t.Errorf("PrintRows() should return %v, but got %v", 4, len(rows))
+	tests := []struct {
+		sortType      SortType
+		expectLastRow []string
+	}{
+		{NoSort, []string{"github.com/junyaU/mimi/testdata/layer/infra", "5", "8", "0", "6", "0", "0.750000"}},
+		{SortByWeight, []string{"github.com/junyaU/mimi/testdata/layer/adapter", "0", "0", "2", "0", "0", "0.050000"}},
 	}
 
-	if rows[0][0] != flowPackage {
-		t.Errorf("PrintRows() should return %v, but got %v", flowPackage, rows[0][0])
-	}
+	for _, test := range tests {
+		graph := BuildDepGraph(t, "./../../testdata")
+		graph.AnalyzeIndirectDeps()
+		graph.AnalyzeDependents()
+		graph.AnalyzeWeights()
 
-	directDepsNum, err := strconv.Atoi(rows[0][1])
-	if err != nil {
-		t.Errorf("Num of direct dependencies should be integer, but got %v", rows[0][1])
-	}
+		result := graph.PrintRows(test.sortType)
 
-	if directDepsNum != 2 {
-		t.Errorf("PrintRows() should return %v, but got %v", 2, directDepsNum)
-	}
-
-	indirectDepsNum, err := strconv.Atoi(rows[0][2])
-	if err != nil {
-		t.Errorf("Num of indirect dependencies should be integer, but got %v", rows[0][2])
-	}
-
-	if indirectDepsNum != 1 {
-		t.Errorf("PrintRows() should return %v, but got %v", 1, indirectDepsNum)
+		if result[len(result)-1][6] != test.expectLastRow[6] {
+			t.Errorf("PrintRows() should return %v, but got %v", test.expectLastRow[6], result[len(result)-1][6])
+		}
 	}
 }
 
