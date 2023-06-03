@@ -40,6 +40,10 @@ $ go install github.com/junyaU/mimi
 
 Make sure that your PATH includes the $GOPATH/bin directory so your commands can be easily used:
 
+```sh
+$ export PATH=$PATH:$GOPATH/bin
+```
+
 ## Weight of Dependencies
 Weight is a measure of the dependency's significance and is calculated based on various factors like the number of dependent packages, how deeply nested the dependency is, etc. Weight provides a quantitative way to evaluate the impact of a dependency on your project.
 
@@ -66,10 +70,6 @@ The normalization formula is:
 
 ```
 Score = (Value - MinValue) / (MaxValue - MinValue)
-```
-
-```sh
-$ export PATH=$PATH:$GOPATH/bin
 ```
 
 ## Usage
