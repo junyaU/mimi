@@ -76,18 +76,16 @@ Score = (Value - MinValue) / (MaxValue - MinValue)
 Mimi provides several commands to analyze your Go packages.
 
 ### Check Command
-Checks if the direct and indirect dependencies of a given Go package exceed the given thresholds.
+The check command evaluates the dependencies of a Go package against defined thresholds, checking for five key parameters: direct dependencies, indirect dependencies, dependency depth, lines of code in the package, and weight of dependencies.
 
-The direct_threshold parameter specifies the maximum number of direct dependencies allowed. Direct dependencies are the packages that the given package directly depends on.
-
-The indirect_threshold parameter specifies the maximum number of indirect dependencies allowed. Indirect dependencies are the packages that the given package depends on through one or more intermediary packages.
-
-The depth parameter specifies the maximum depth of dependencies allowed. Depth is a measure of the farthest distance from the given package to a dependency, with a direct dependency being at a depth of 1, a dependency of a direct dependency being at a depth of 2, and so on.
-
-The lines parameter specifies the maximum number of lines of code allowed in a single Go package. It's a way to keep your Go packages concise and maintainable. If a package's code exceeds this limit, it may indicate that the package is doing too much and may need to be broken down into smaller, more focused packages.
+direct - Maximum permissible direct dependencies.
+indirect - Maximum permissible indirect dependencies.
+depth - Maximum permissible dependency depth.
+lines - Maximum permissible lines of code in a package.
+weight - Maximum permissible weight of dependencies.
 
 ```sh
-$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines> --weight=<weight>
+$ mimi check <package_path> --direct=<direct> --indirect=<indirect> --depth=<depth> --lines=<lines> --weight=<weight>
 ```
 
 ex) Check if the direct dependencies of the `github.com/junyaU/mimi/testdata` package exceed 2.
@@ -110,7 +108,7 @@ Generates a table showing the direct and indirect dependencies for a given Go pa
 The --weight option allows the table to be sorted based on the weight of dependencies. Dependencies with a weight of 0.3 or less are color-coded green, between 0.3 and 0.7 yellow, and between 0.7 and 1.0 red.
 
 ```sh
-$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines> --weight
+$ mimi table <package_path> --direct=<direct> --indirect=<indirect> --depth=<depth> --lines=<lines> --weight
 ```
 
 ex) Generate a table showing the dependencies of the `github.com/junyaU/mimi/testdata/layer` package.
