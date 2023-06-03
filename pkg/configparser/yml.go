@@ -5,16 +5,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+// YmlConfig represents the entire structure of a YAML configuration file.
 type YmlConfig struct {
 	Version  string          `yaml:"version"`
 	Commands []ConfigCommand `yaml:"commands"`
 }
 
+// ConfigCommand represents a single command from the configuration.
 type ConfigCommand struct {
 	Name       string        `yaml:"name"`
 	Parameters CommandParams `yaml:"parameters"`
 }
 
+// CommandParams holds the parameters of a command from the configuration.
 type CommandParams struct {
 	Path               string  `yaml:"path"`
 	DirectThreshold    int     `yaml:"directThreshold"`
@@ -26,6 +29,7 @@ type CommandParams struct {
 	EnableWeight       bool    `yaml:"enableWeight"`
 }
 
+// Command represents a validated command ready for execution.
 type Command struct {
 	Name               string
 	Path               string

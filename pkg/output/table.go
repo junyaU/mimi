@@ -10,10 +10,12 @@ import (
 	"strconv"
 )
 
+// The number of table columns that contain integers.
 const numTableIntColumns = 5
 
 var tableHeaders = []string{"Package", "Direct Deps", "Indirect Deps", "Dependents", "Depth", "Lines", "Weight"}
 
+// TableDrawer is responsible for drawing tables with dependency data.
 type TableDrawer struct {
 	table           *tablewriter.Table
 	maxDirectDeps   int
@@ -54,6 +56,9 @@ func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDependents, maxDepth, max
 	}, nil
 }
 
+// DrawTable renders a table with given data, sorted by given sort type.
+// It colors the table based on the sort type: by limit or by weight.
+// It returns an error if no packages found or any row does not match the table headers.
 func (d *TableDrawer) DrawTable(path string, rows [][]string, sortType analysis.SortType) error {
 	if len(rows) == 0 {
 		return fmt.Errorf("no packages found")

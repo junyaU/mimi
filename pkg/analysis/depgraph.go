@@ -15,28 +15,50 @@ const (
 	depthWeights              = 0.2
 )
 
+// Node represents a node in a dependency graph.
 type Node struct {
-	Package    string
-	Direct     []string
-	Indirect   []string
+	// Package is the name of the package that this node represents.
+	Package string
+
+	// Direct is a list of packages that this node directly depends on.
+	Direct []string
+
+	// Indirect is a list of packages that this node indirectly depends on.
+	Indirect []string
+
+	// Dependents is a list of packages that depend on this node.
 	Dependents []string
-	Depth      int
-	Lines      int
-	Weight     float32
+
+	// Depth is the maximum depth of this node's dependency tree.
+	Depth int
+
+	// Lines is the number of lines of code in the package that this node represents.
+	Lines int
+
+	// Weight is the weighted score of this node, based on its dependencies and dependents.
+	Weight float32
+}
+
+// DepGraph represents a dependency graph of a Go project.
+type DepGraph struct {
+	// nodes is the list of nodes in the graph.
+	nodes []Node
+
+	// dependencyMap maps package names to their respective package info.
+	dependencyMap map[string]pkginfo.Package
+
+	// directLimits, indirectLimits, dependentLimits and depthLimits are the
+	// minimum and maximum number of direct dependencies, indirect dependencies,
+	// dependents, and depth across all nodes in the graph.
+	directLimits    *Limits
+	indirectLimits  *Limits
+	dependentLimits *Limits
+	depthLimits     *Limits
 }
 
 type Limits struct {
 	Min int
 	Max int
-}
-
-type DepGraph struct {
-	nodes           []Node
-	dependencyMap   map[string]pkginfo.Package
-	directLimits    *Limits
-	indirectLimits  *Limits
-	dependentLimits *Limits
-	depthLimits     *Limits
 }
 
 func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {

@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// LogDrawer is responsible for printing formatted output with colors.
 type LogDrawer struct {
 	nodes []analysis.Node
 	pkg   *color.Color
@@ -33,7 +34,7 @@ func NewLogDrawer(nodes []analysis.Node) (*LogDrawer, error) {
 	}, nil
 }
 
-func (l *LogDrawer) Draw() {
+func (l *LogDrawer) DrawList() {
 	for _, node := range l.nodes {
 		l.pkg.Printf("%s\n", node.Package)
 
@@ -58,6 +59,9 @@ func (l *LogDrawer) Draw() {
 	}
 }
 
+// ReportExceededDeps checks if any package exceeds the given thresholds for dependencies,
+// depth, lines, dependents, and weight, and reports any violations to the console.
+// It returns true if any package exceeded the thresholds.
 func (l *LogDrawer) ReportExceededDeps(path string, maxDirectDeps, maxIndirectDeps, maxDepth, maxLines, maxDependent int, weight float32) bool {
 	exceeded := false
 
