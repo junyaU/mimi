@@ -239,7 +239,12 @@ func (n *Node) calculateWeightsScore(directL, indirectL, dependentL, depthL Limi
 	dependentScore := normalize(len(n.Dependents), dependentL) * dependentWeights
 	depthScore := normalize(n.Depth, depthL) * depthWeights
 
-	n.Weight = directScore + indirectScore + dependentScore + depthScore
+	score := directScore + indirectScore + dependentScore + depthScore
+	if score < 0 {
+		score = 0
+	}
+
+	n.Weight = score
 }
 
 func analyzeDirectDeps(graph *DepGraph, pkgs []pkginfo.Package) {
