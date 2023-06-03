@@ -78,11 +78,11 @@ Mimi provides several commands to analyze your Go packages.
 ### Check Command
 The check command evaluates the dependencies of a Go package against defined thresholds, checking for five key parameters: direct dependencies, indirect dependencies, dependency depth, lines of code in the package, and weight of dependencies.
 
-direct - Maximum permissible direct dependencies.
-indirect - Maximum permissible indirect dependencies.
-depth - Maximum permissible dependency depth.
-lines - Maximum permissible lines of code in a package.
-weight - Maximum permissible weight of dependencies.
+- direct - Maximum permissible direct dependencies.
+- indirect - Maximum permissible indirect dependencies.
+- depth - Maximum permissible dependency depth.
+- lines - Maximum permissible lines of code in a package.
+- weight - Maximum permissible weight of dependencies.
 
 ```sh
 $ mimi check <package_path> --direct=<direct> --indirect=<indirect> --depth=<depth> --lines=<lines> --weight=<weight>
