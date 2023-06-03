@@ -10,13 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var directThreshold int
-var indirectThreshold int
-var depthThreshold int
-var linesThreshold int
-var dependentThreshold int
-var weightThreshold float32
-
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
 	Use:   "check [package path]",

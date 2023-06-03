@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/junyaU/mimi/pkg/analysis"
 	"github.com/junyaU/mimi/pkg/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
@@ -20,12 +21,13 @@ type TableDrawer struct {
 	maxDepth        int
 	maxLines        int
 	maxDependents   int
-	maxWeight       float32
-	limitColor      func(a ...interface{}) string
+	lowColor        func(a ...interface{}) string
+	middleColor     func(a ...interface{}) string
+	highColor       func(a ...interface{}) string
 }
 
-func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDependents, maxDepth, maxLines int, maxWeight float32) (*TableDrawer, error) {
-	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 || maxLines < 0 || maxWeight < 0 || maxDependents < 0 {
+func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDependents, maxDepth, maxLines int) (*TableDrawer, error) {
+	if maxDirectDeps < 0 || maxIndirectDeps < 0 || maxDepth < 0 || maxLines < 0 || maxDependents < 0 {
 		return nil, fmt.Errorf("all limits should be positive")
 	}
 
@@ -46,12 +48,13 @@ func NewTableDrawer(maxDirectDeps, maxIndirectDeps, maxDependents, maxDepth, max
 		maxDepth:        maxDepth,
 		maxLines:        maxLines,
 		maxDependents:   maxDependents,
-		maxWeight:       maxWeight,
-		limitColor:      color.New(color.FgRed).SprintFunc(),
+		lowColor:        color.New(color.FgGreen).SprintFunc(),
+		middleColor:     color.New(color.FgYellow).SprintFunc(),
+		highColor:       color.New(color.FgRed).SprintFunc(),
 	}, nil
 }
 
-func (d *TableDrawer) DrawTable(path string, rows [][]string) error {
+func (d *TableDrawer) DrawTable(path string, rows [][]string, sortType analysis.SortType) error {
 	if len(rows) == 0 {
 		return fmt.Errorf("no packages found")
 	}
@@ -65,12 +68,20 @@ func (d *TableDrawer) DrawTable(path string, rows [][]string) error {
 			continue
 		}
 
-		nums, weight, err := parseRowNumbers(row)
+		nums, weight, err := parseRowNumbersAndWeight(row)
 		if err != nil {
 			return fmt.Errorf("error parsing numbers in row at index %d: %v", i, err)
 		}
 
-		d.table.Append(checkAndColorLimit(d, row, nums, weight))
+		var parsedRow []string
+		switch sortType {
+		case analysis.SortByWeight:
+			parsedRow = d.colorWeight(row, weight)
+		case analysis.NoSort:
+			parsedRow = d.colorLimit(row, nums)
+		}
+
+		d.table.Append(parsedRow)
 	}
 
 	if d.table.NumLines() == 0 {
@@ -81,7 +92,39 @@ func (d *TableDrawer) DrawTable(path string, rows [][]string) error {
 	return nil
 }
 
-func parseRowNumbers(row []string) ([numTableIntColumns]int, float32, error) {
+func (d *TableDrawer) colorLimit(row []string, nums [numTableIntColumns]int) []string {
+	limits := [numTableIntColumns]int{d.maxDirectDeps, d.maxIndirectDeps, d.maxDepth, d.maxDependents, d.maxLines}
+
+	for i, num := range nums {
+		if limits[i] > 0 && num > limits[i] {
+			row[0] = d.highColor(row[0])
+			row[i+1] = d.highColor(row[i+1])
+		}
+	}
+
+	return row
+}
+
+func (d *TableDrawer) colorWeight(row []string, weight float32) []string {
+	const lowWeightLimit = 0.3
+	const middleWeightLimit = 0.7
+	const highWeightLimit = 1.0
+
+	if weight < lowWeightLimit {
+		row[0] = d.lowColor(row[0])
+		row[numTableIntColumns+1] = d.lowColor(row[numTableIntColumns+1])
+	} else if weight < middleWeightLimit {
+		row[0] = d.middleColor(row[0])
+		row[numTableIntColumns+1] = d.middleColor(row[numTableIntColumns+1])
+	} else if weight < highWeightLimit {
+		row[0] = d.highColor(row[0])
+		row[numTableIntColumns+1] = d.highColor(row[numTableIntColumns+1])
+	}
+
+	return row
+}
+
+func parseRowNumbersAndWeight(row []string) ([numTableIntColumns]int, float32, error) {
 	var nums [numTableIntColumns]int
 
 	for i := 1; i <= numTableIntColumns; i++ {
@@ -98,22 +141,4 @@ func parseRowNumbers(row []string) ([numTableIntColumns]int, float32, error) {
 	}
 
 	return nums, float32(parseWeight), nil
-}
-
-func checkAndColorLimit(d *TableDrawer, row []string, nums [numTableIntColumns]int, weight float32) []string {
-	limits := [numTableIntColumns]int{d.maxDirectDeps, d.maxIndirectDeps, d.maxDepth, d.maxDependents, d.maxLines}
-
-	for i, num := range nums {
-		if limits[i] > 0 && num > limits[i] {
-			row[0] = d.limitColor(row[0])
-			row[i+1] = d.limitColor(row[i+1])
-		}
-	}
-
-	if d.maxWeight > 0 && weight > d.maxWeight {
-		row[0] = d.limitColor(row[0])
-		row[numTableIntColumns+1] = d.limitColor(row[numTableIntColumns+1])
-	}
-
-	return row
 }

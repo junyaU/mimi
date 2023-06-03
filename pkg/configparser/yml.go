@@ -23,6 +23,7 @@ type CommandParams struct {
 	LinesThreshold     int     `yaml:"linesThreshold"`
 	DependentThreshold int     `yaml:"dependentThreshold"`
 	WeightThreshold    float32 `yaml:"weightThreshold"`
+	EnableWeight       bool    `yaml:"enableWeight"`
 }
 
 type Command struct {
@@ -34,6 +35,7 @@ type Command struct {
 	LinesThreshold     int
 	DependentThreshold int
 	WeightThreshold    float32
+	EnableWeight       bool
 }
 
 func (c *ConfigCommand) IsValid() bool {
@@ -83,6 +85,7 @@ func (c *YmlConfig) GetCommands() ([]Command, error) {
 			LinesThreshold:     command.Parameters.LinesThreshold,
 			DependentThreshold: command.Parameters.DependentThreshold,
 			WeightThreshold:    command.Parameters.WeightThreshold,
+			EnableWeight:       command.Parameters.EnableWeight,
 		})
 	}
 

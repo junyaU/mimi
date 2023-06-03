@@ -29,7 +29,7 @@ risks in the package dependency structure. Specify the package path as an argume
 			cobra.CheckErr(err)
 		}
 
-		if err := drawDepsTable(graph, args[0], directThreshold, indirectThreshold, dependentThreshold, depthThreshold, linesThreshold, weightThreshold); err != nil {
+		if err := drawDepsTable(graph, args[0], directThreshold, indirectThreshold, dependentThreshold, depthThreshold, linesThreshold, weightFlag); err != nil {
 			cobra.CheckErr(err)
 		}
 	},
@@ -43,20 +43,25 @@ func init() {
 	tableCmd.Flags().IntVarP(&depthThreshold, "depth", "z", 0, "Threshold for depth of dependency graph")
 	tableCmd.Flags().IntVarP(&linesThreshold, "lines", "l", 0, "Threshold for lines of code")
 	tableCmd.Flags().IntVarP(&dependentThreshold, "dependent", "p", 0, "Threshold for dependent packages")
-	tableCmd.Flags().Float32VarP(&weightThreshold, "weight", "w", 0, "Threshold for weight of dependency graph")
+	tableCmd.Flags().BoolVarP(&weightFlag, "weight", "w", false, "Show weight of dependency table")
 }
 
-func drawDepsTable(graph *analysis.DepGraph, path string, direct, indirect, dependents, depth, lines int, weight float32) error {
+func drawDepsTable(graph *analysis.DepGraph, path string, direct, indirect, dependents, depth, lines int, weightFlag bool) error {
 	graph.AnalyzeIndirectDeps()
 	graph.AnalyzeDependents()
 	graph.AnalyzeWeights()
 
-	drawer, err := output.NewTableDrawer(direct, indirect, dependents, depth, lines, weight)
+	drawer, err := output.NewTableDrawer(direct, indirect, dependents, depth, lines)
 	if err != nil {
 		return fmt.Errorf("failed to create drawer: %w", err)
 	}
 
-	if err := drawer.DrawTable(path, graph.PrintRows()); err != nil {
+	sortType := analysis.NoSort
+	if weightFlag {
+		sortType = analysis.SortByWeight
+	}
+
+	if err := drawer.DrawTable(path, graph.PrintRows(sortType), sortType); err != nil {
 		return fmt.Errorf("failed to draw table: %w", err)
 	}
 

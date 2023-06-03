@@ -17,10 +17,7 @@ commands:
   - name: table
     parameters:
       path: ./testdata/layer/domain/model
-      directThreshold: 3
-      indirectThreshold: 5
-      depthThreshold: 2
-      linesThreshold: 1000
+      enableWeight: true
   - name: list
     parameters:
       path: ./testdata/layer/domain/model/flow

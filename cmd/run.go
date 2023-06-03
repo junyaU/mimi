@@ -64,7 +64,7 @@ func executeCommand(c configparser.Command, graph *analysis.DepGraph) error {
 			c.DependentThreshold,
 			c.DepthThreshold,
 			c.LinesThreshold,
-			c.WeightThreshold,
+			c.EnableWeight,
 		)
 	case "check":
 		return checkDepsThresholds(

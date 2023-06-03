@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/junyaU/mimi/pkg/pkginfo"
 	"github.com/junyaU/mimi/pkg/utils"
+	"sort"
 	"strconv"
 )
 
@@ -65,9 +66,21 @@ func (g *DepGraph) GetNodes() []Node {
 	return g.nodes
 }
 
-func (g *DepGraph) PrintRows() [][]string {
+func (g *DepGraph) PrintRows(sortType SortType) [][]string {
 	var rows [][]string
-	for _, node := range g.nodes {
+
+	var nodes []Node
+	nodes = g.nodes
+
+	switch sortType {
+	case NoSort:
+	case SortByWeight:
+		sort.Slice(g.nodes, func(i, j int) bool {
+			return g.nodes[i].Weight > g.nodes[j].Weight
+		})
+	}
+
+	for _, node := range nodes {
 		rows = append(rows, []string{
 			node.Package,
 			strconv.Itoa(len(node.Direct)),
