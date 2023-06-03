@@ -5,8 +5,8 @@ Mimi is a command-line interface (CLI) tool written in Go. It provides quantitat
 ## Table of Contents
 
 - [Features](#features)
-- [Weight of Dependencies](#weight-of-dependencies)
 - [Installation](#installation)
+- [Weight of Dependencies](#weight-of-dependencies)
 - [Usage](#usage)
     - [Check Command](#check-command)
     - [Table Command](#table-command)
@@ -28,6 +28,17 @@ Mimi is a command-line interface (CLI) tool written in Go. It provides quantitat
 - **Calculate the Weight of Dependencies** : Mimi calculates a "weight" for each dependency, reflecting its significance within the project. This feature can help you identify key dependencies that could be a focus for optimization or refactoring.
 
 - **Get Dependency Alerts** : With the -w option in the check command, you can receive alerts when the weight of a dependency exceeds a specified threshold. This can be a valuable tool for maintaining code quality over time.
+
+## Installation
+Assuming you have a working Go environment (version 1.1.9 or newer), Mimi can be installed by running:
+
+```sh
+$ go get -u github.com/junyaU/mimi
+
+$ go install github.com/junyaU/mimi
+```
+
+Make sure that your PATH includes the $GOPATH/bin directory so your commands can be easily used:
 
 ## Weight of Dependencies
 Weight is a measure of the dependency's significance and is calculated based on various factors like the number of dependent packages, how deeply nested the dependency is, etc. Weight provides a quantitative way to evaluate the impact of a dependency on your project.
@@ -56,17 +67,6 @@ The normalization formula is:
 ```
 Score = (Value - MinValue) / (MaxValue - MinValue)
 ```
-
-## Installation
-Assuming you have a working Go environment (version 1.1.9 or newer), Mimi can be installed by running:
-
-```sh
-$ go get -u github.com/junyaU/mimi
-
-$ go install github.com/junyaU/mimi
-```
-
-Make sure that your PATH includes the $GOPATH/bin directory so your commands can be easily used:
 
 ```sh
 $ export PATH=$PATH:$GOPATH/bin
