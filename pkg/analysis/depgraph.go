@@ -61,6 +61,13 @@ type Limits struct {
 	Max int
 }
 
+func NewLimits() *Limits {
+	return &Limits{
+		Min: 10000,
+		Max: 0,
+	}
+}
+
 func NewDepGraph(pkgOverview *pkginfo.PackageOverview) (*DepGraph, error) {
 	if len(pkgOverview.Packages) == 0 {
 		return nil, fmt.Errorf("no packages found")
@@ -88,6 +95,7 @@ func (g *DepGraph) GetNodes() []Node {
 	return g.nodes
 }
 
+// PrintRows prints the rows of the dependency graph sorted based on the given sort type.
 func (g *DepGraph) PrintRows(sortType SortType) [][]string {
 	var rows [][]string
 
@@ -116,6 +124,7 @@ func (g *DepGraph) PrintRows(sortType SortType) [][]string {
 	return rows
 }
 
+// AnalyzeDependents finds and sets the dependents for each node in the dependency graph.
 func (g *DepGraph) AnalyzeDependents() {
 	for _, node := range g.nodes {
 		for _, importedPkg := range node.Direct {
@@ -129,6 +138,7 @@ func (g *DepGraph) AnalyzeDependents() {
 	}
 }
 
+// AnalyzeIndirectDeps finds and sets the indirect dependencies for each node in the dependency graph.
 func (g *DepGraph) AnalyzeIndirectDeps() {
 	for index := range g.nodes {
 		visited := make(map[string]bool)
@@ -147,6 +157,7 @@ func (g *DepGraph) AnalyzeIndirectDeps() {
 	}
 }
 
+// AnalyzePackageLines sets the number of lines of code for each node in the dependency graph.
 func (g *DepGraph) AnalyzePackageLines(projectPkgs ProjectPackages) error {
 	for index := range g.nodes {
 		pkg, err := projectPkgs.GetPackage(g.nodes[index].Package)
@@ -162,13 +173,20 @@ func (g *DepGraph) AnalyzePackageLines(projectPkgs ProjectPackages) error {
 	return nil
 }
 
+// AnalyzeWeights calculates and sets the weight score for each node in the dependency graph.
 func (g *DepGraph) AnalyzeWeights() {
 	for index := range g.nodes {
 		g.nodes[index].calculateWeightsScore(*g.directLimits, *g.indirectLimits, *g.dependentLimits, *g.depthLimits)
 	}
 }
 
-// Depth-First Search
+// findIndirectDeps performs a depth-first search to find and calculate the maximum depth of
+// indirect dependencies for a target Node in a dependency graph.
+// It traverses the graph starting from the 'node' parameter, marking visited nodes to avoid
+// circular dependencies. If an indirect dependency is found (a dependency that is not a direct
+// dependency of the target node), it is added to 'targetIndirect'. The function recursively
+// calls itself to explore the full depth of each branch in the dependency tree, returning the
+// maximum depth encountered.
 func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo.Package, targetIndirect map[string]bool, visited map[string]bool, depth int) (maxDepth int) {
 	maxDepth = depth
 
@@ -201,7 +219,13 @@ func findIndirectDeps(target *Node, node *Node, dependencyMap map[string]pkginfo
 	return
 }
 
-func (n *Node) calculateWeightsScore(directL Limits, indirectL Limits, dependentL Limits, depthL Limits) {
+// calculateWeightsScore calculates the weight score for the node.
+// The weight score is a measure of the node's importance in the dependency graph and is based on
+// the number of direct dependencies, indirect dependencies, dependents, and depth of the node.
+// Each of these factors is normalized with respect to the minimum and maximum values across all
+// nodes in the graph, and then weighted according to predefined weights. The final weight score
+// for the node is the sum of these weighted factors.
+func (n *Node) calculateWeightsScore(directL, indirectL, dependentL, depthL Limits) {
 	normalize := func(val int, limit Limits) float32 {
 		if limit.Max == limit.Min {
 			return 0
@@ -226,13 +250,6 @@ func analyzeDirectDeps(graph *DepGraph, pkgs []pkginfo.Package) {
 		})
 
 		graph.directLimits.Update(len(pkg.Imports))
-	}
-}
-
-func NewLimits() *Limits {
-	return &Limits{
-		Min: 10000,
-		Max: 0,
 	}
 }
 
