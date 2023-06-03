@@ -75,25 +75,16 @@ If any of the specified thresholds are exceeded, the check command will return a
 Generates a table showing the direct and indirect dependencies for a given Go package.
 
 ```sh
-$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines>
+$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines> -w
 ```
 
-ex) Generate a table showing the direct and indirect dependencies of the `github.com/junyaU/mimi/testdata/layer/domain/model` package.
+ex) Generate a table showing the dependencies of the `github.com/junyaU/mimi/testdata/layer` package.
 
 ```sh  
-$ mimi table ./testdata/layer/domain/model
-+--------------------------------------------------------------+-------------+---------------+-------+-------+
-|                           PACKAGE                            | DIRECT DEPS | INDIRECT DEPS | DEPTH | LINES |
-+--------------------------------------------------------------+-------------+---------------+-------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/creator   | 0           | 0             | 0     | 33    |
-+--------------------------------------------------------------+-------------+---------------+-------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/recipe    | 1           | 0             | 1     | 339   |
-+--------------------------------------------------------------+-------------+---------------+-------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/flow      | 2           | 1             | 2     | 417   |
-+--------------------------------------------------------------+-------------+---------------+-------+-------+
-| github.com/junyaU/mimi/testdata/layer/domain/model/necessity | 2           | 1             | 2     | 254   |
-+--------------------------------------------------------------+-------------+---------------+-------+-------+
+$ mimi table ./testdata/layer/ -w
 ```
+
+<img width="943" alt="スクリーンショット 2023-06-03 11 50 19" src="https://github.com/junyaU/mimi/assets/61627945/d5eab75c-a883-4e4e-9d07-0c3eb9b5d6da">
 
 ### List Command
 Lists all the dependencies of a given Go package.
