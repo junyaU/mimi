@@ -1,10 +1,11 @@
 # Mimi: Go Dependency Quantifier CLI Tool
 
-Mimi is a command-line interface (CLI) tool written in Go that quantifies the dependencies of Go packages. It helps you manage the complexity of your Go projects by providing detailed information about both direct and indirect dependencies.
+Mimi is a command-line interface (CLI) tool written in Go. It provides quantitative information about the dependencies of Go packages such as the number of direct and indirect dependencies, the depth of these dependencies, and their weight. This detailed knowledge can help you understand and manage the complexity of your Go projects better.
 
 ## Table of Contents
 
 - [Features](#features)
+- [Weight of Dependencies](#weight-of-dependencies)
 - [Installation](#installation)
 - [Usage](#usage)
     - [Check Command](#check-command)
@@ -18,10 +19,43 @@ Mimi is a command-line interface (CLI) tool written in Go that quantifies the de
 
 ## Features
 
-- Quantify direct and indirect dependencies of a Go package.
-- Visualize dependencies in a table.
-- Set thresholds for dependencies and get alerts when these thresholds are exceeded.
+- **Quantify Direct and Indirect Dependencies** : Mimi counts the number of direct and indirect dependencies of your Go packages. This information can be instrumental in understanding the structure and complexity of your projects. For example, a high number of indirect dependencies may indicate a complex package structure that could be difficult to maintain.
 
+- **Visualize Dependencies in a Table** : Mimi can display dependencies in a table format, giving you a visual overview of your project's structure. By using the -w option in the table command, the table can be sorted based on the weight of the dependencies.
+
+- **Set Thresholds for Dependencies** : With Mimi, you can set thresholds for dependencies and receive alerts when these thresholds are exceeded. This feature can help enforce good coding practices in large projects and ensure that packages don't become overly complex or dependent on too many other packages.
+
+- **Calculate the Weight of Dependencies** : Mimi calculates a "weight" for each dependency, reflecting its significance within the project. This feature can help you identify key dependencies that could be a focus for optimization or refactoring.
+
+- **Get Dependency Alerts** : With the -w option in the check command, you can receive alerts when the weight of a dependency exceeds a specified threshold. This can be a valuable tool for maintaining code quality over time.
+
+## Weight of Dependencies
+Weight is a measure of the dependency's significance and is calculated based on various factors like the number of dependent packages, how deeply nested the dependency is, etc. Weight provides a quantitative way to evaluate the impact of a dependency on your project.
+
+The weight of a dependency ranges from 0 to 1, with 0 being the least significant and 1 being the most significant.
+
+The calculation of weight is done as follows:
+
+Weight is calculated using four factors: direct dependencies, indirect dependencies, dependents, and dependency depth. Each of these factors is normalized to a value between 0 and 1 and then weighted according to the following percentages:
+
+- Direct dependencies: 30%
+- Indirect dependencies: 30%
+- Dependents: 20%
+- Dependency depth: 20%
+
+The weight is then calculated as follows:
+
+```
+Weight = (DirectScore * 0.3) + (IndirectScore * 0.3) + (DependentScore * 0.2) + (DepthScore * 0.2)
+```
+
+Each of the scores (DirectScore, IndirectScore, DependentScore, DepthScore) is calculated by normalizing the corresponding value (the number of direct dependencies, indirect dependencies, dependents, and dependency depth respectively) to a range between 0 and 1. The normalization is done based on the minimum and maximum limits specified for each value.
+
+The normalization formula is:
+
+```
+Score = (Value - MinValue) / (MaxValue - MinValue)
+```
 
 ## Installation
 Assuming you have a working Go environment (version 1.1.9 or newer), Mimi can be installed by running:
@@ -52,9 +86,8 @@ The depth parameter specifies the maximum depth of dependencies allowed. Depth i
 
 The lines parameter specifies the maximum number of lines of code allowed in a single Go package. It's a way to keep your Go packages concise and maintainable. If a package's code exceeds this limit, it may indicate that the package is doing too much and may need to be broken down into smaller, more focused packages.
 
-
 ```sh
-$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines>
+$ mimi check <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines> --weight=<weight>
 ```
 
 ex) Check if the direct dependencies of the `github.com/junyaU/mimi/testdata` package exceed 2.
@@ -74,8 +107,10 @@ If any of the specified thresholds are exceeded, the check command will return a
 ### Table Command
 Generates a table showing the direct and indirect dependencies for a given Go package.
 
+The --weight option allows the table to be sorted based on the weight of dependencies. Dependencies with a weight of 0.3 or less are color-coded green, between 0.3 and 0.7 yellow, and between 0.7 and 1.0 red.
+
 ```sh
-$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines> -w
+$ mimi table <package_path> --direct=<direct_threshold> --indirect=<indirect_threshold> --depth=<depth> --lines=<lines> --weight
 ```
 
 ex) Generate a table showing the dependencies of the `github.com/junyaU/mimi/testdata/layer` package.
@@ -186,8 +221,7 @@ commands:
   - name: table
     parameters:
       path: "./"
-      directThreshold: 10
-      indirectThreshold: 20
+      enableWeight: true
 ```
 
 In the above example, three commands check, list, and table will be executed.
